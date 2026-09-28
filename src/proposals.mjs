@@ -129,6 +129,8 @@ export function registerLanguageProposals({
     }
     return {
       ...item,
+      candidateIds: item.candidateIds ?? [],
+      relationIds: item.relationIds ?? [],
       status: "proposed",
       provenance: provenance(agentId, recordedAt),
     };
