@@ -22,3 +22,7 @@ El agente de lenguaje sólo propone. La confirmación, rechazo o modificación p
 - se marca explícitamente que se requiere confirmación humana;
 - no se produce ConfirmedModel, MotorRequest ni resultado matemático.
 \n\n## Validación de integridad\n\nEl registro valida que las hipótesis tengan `candidateIds` como arreglo, que sus identificadores sean únicos, que su `caseId` coincida con el documento cuando está disponible y que cada localizador contextual conserve `sourceObjectId`, `sourceVersion`, `id`, categoría, locator y estado de evidencia. Estas validaciones no promueven ningún objeto.\n
+
+## Integración con contexto
+
+La prueba de integración consume `queryParadigma` mediante `PROMETEO_CONTEXTO_PATH`. El resultado se entrega a `registerLanguageProposals` como contexto de localizadores. Se verifica que `contextReferences` conserve mapa, commit, locator y estado de evidencia, mientras la salida lingüística permanece en `proposed` y no expone `ConfirmedModel`, `MotorRequest` ni resultados matemáticos.
