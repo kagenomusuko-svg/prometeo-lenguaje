@@ -21,3 +21,4 @@ El agente de lenguaje sólo propone. La confirmación, rechazo o modificación p
 - el contexto no se transforma en evidencia ni conclusión;
 - se marca explícitamente que se requiere confirmación humana;
 - no se produce ConfirmedModel, MotorRequest ni resultado matemático.
+\n\n## Validación de integridad\n\nEl registro valida que las hipótesis tengan `candidateIds` como arreglo, que sus identificadores sean únicos, que su `caseId` coincida con el documento cuando está disponible y que cada localizador contextual conserve `sourceObjectId`, `sourceVersion`, `id`, categoría, locator y estado de evidencia. Estas validaciones no promueven ningún objeto.\n
