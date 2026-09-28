@@ -33,7 +33,6 @@ const proposals = registerLanguageProposals({
     caseId: "case-001",
     label: "H1: relación propuesta entre X y Y",
     candidateIds: ["candidate-001"],
-    relationIds: [],
   }],
   recordedAt: "2026-09-28T17:30:00Z",
 });
@@ -41,6 +40,7 @@ const proposals = registerLanguageProposals({
 assert.equal(proposals.propositions[0].state, "proposed");
 assert.equal(proposals.candidates[0].state, "proposed");
 assert.equal(proposals.hypotheses[0].status, "proposed");
+assert.deepEqual(proposals.hypotheses[0].relationIds, []);
 assert.equal(proposals.requiresHumanConfirmation, true);
 assert.equal(proposals.provenance.kind, "language-agent");
 assert.equal(proposals.contextReferences[0].sourceRef, "kagenomusuko-svg/Paradigma@map-commit");
