@@ -32,6 +32,7 @@ export function registerLanguageProposals({
   propositions,
   candidates = [],
   hypotheses = [],
+  context = null,
   agentId = "prometeo-lenguaje",
   recordedAt,
 }) {
@@ -40,6 +41,22 @@ export function registerLanguageProposals({
   requiredString(agentId, "agentId");
   requiredString(recordedAt, "recordedAt");
 
+  if (context !== null) {
+    object(context, "context");
+    if (context.contextStatus !== "map-locators-only") {
+      throw new LanguageError("INVALID_CONTEXT", "context must contain map locators only");
+    }
+    if (context.requiresSourceReading !== true) {
+      throw new LanguageError("INVALID_CONTEXT", "context must require source reading");
+    }
+    if (!context.provenance || context.provenance.kind !== "deterministic-system") {
+      throw new LanguageError("INVALID_CONTEXT_PROVENANCE", "context provenance must be deterministic");
+    }
+    requiredString(context.mapVersion, "context.mapVersion");
+    if (!Array.isArray(context.matches)) {
+      throw new LanguageError("INVALID_CONTEXT", "context.matches must be an array");
+    }
+  }
   if (!Array.isArray(propositions) || propositions.length === 0) {
     throw new LanguageError("MISSING_PROPOSITIONS", "at least one proposition is required");
   }
@@ -119,6 +136,15 @@ export function registerLanguageProposals({
 
   return {
     documentId: document.id,
+    contextReferences: context === null ? [] : context.matches.map((match) => ({
+      id: match.id,
+      category: match.category,
+      locator: match.locator ?? null,
+      evidenceStatus: match.evidenceStatus ?? "unclassified",
+      mapVersion: context.mapVersion,
+      sourceRef: context.provenance.sourceObjectId,
+    })),
+
     propositions: normalizedPropositions,
     candidates: normalizedCandidates,
     hypotheses: normalizedHypotheses,

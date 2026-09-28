@@ -5,8 +5,16 @@ const document = {
   id: "document-001",
   fragments: [{ id: "document-001:fragment:1" }],
 };
+const context = {
+  mapVersion: "f1-test",
+  contextStatus: "map-locators-only",
+  requiresSourceReading: true,
+  matches: [{ id: "node-r-star", category: "nodes", locator: { workId: "metrologia-causal", section: "R*" }, evidenceStatus: "explicit" }],
+  provenance: { kind: "deterministic-system", actorId: "prometeo-contexto", recordedAt: "2026-09-28T17:20:00Z", sourceObjectId: "kagenomusuko-svg/Paradigma@map-commit", sourceVersion: "f1-test" },
+};
 const proposals = registerLanguageProposals({
   document,
+  context,
   propositions: [{
     id: "proposition-001",
     fragmentId: "document-001:fragment:1",
@@ -35,6 +43,8 @@ assert.equal(proposals.candidates[0].state, "proposed");
 assert.equal(proposals.hypotheses[0].status, "proposed");
 assert.equal(proposals.requiresHumanConfirmation, true);
 assert.equal(proposals.provenance.kind, "language-agent");
+assert.equal(proposals.contextReferences[0].sourceRef, "kagenomusuko-svg/Paradigma@map-commit");
+assert.equal(proposals.contextReferences[0].evidenceStatus, "explicit");
 
 assert.throws(
   () => registerLanguageProposals({
