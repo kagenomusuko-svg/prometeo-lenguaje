@@ -1,0 +1,53 @@
+import { strict as assert } from "node:assert";
+import { registerLanguageProposals, LanguageError } from "../src/proposals.mjs";
+
+const document = {
+  id: "document-001",
+  fragments: [{ id: "document-001:fragment:1" }],
+};
+const proposals = registerLanguageProposals({
+  document,
+  propositions: [{
+    id: "proposition-001",
+    fragmentId: "document-001:fragment:1",
+    text: "A realizó X y se reporta un resultado Y.",
+    modality: "reported",
+  }],
+  candidates: [{
+    id: "candidate-001",
+    propositionId: "proposition-001",
+    category: "relation",
+    label: "X podría relacionarse con Y",
+    attributes: { modal: "possible" },
+  }],
+  hypotheses: [{
+    id: "hypothesis-001",
+    caseId: "case-001",
+    label: "H1: relación propuesta entre X y Y",
+    candidateIds: ["candidate-001"],
+    relationIds: [],
+  }],
+  recordedAt: "2026-09-28T17:30:00Z",
+});
+
+assert.equal(proposals.propositions[0].state, "proposed");
+assert.equal(proposals.candidates[0].state, "proposed");
+assert.equal(proposals.hypotheses[0].status, "proposed");
+assert.equal(proposals.requiresHumanConfirmation, true);
+assert.equal(proposals.provenance.kind, "language-agent");
+
+assert.throws(
+  () => registerLanguageProposals({
+    document,
+    propositions: [{
+      id: "proposition-002",
+      fragmentId: "document-001:fragment:1",
+      text: "A causó Y.",
+      state: "accepted",
+    }],
+    recordedAt: "2026-09-28T17:30:00Z",
+  }),
+  (error) => error instanceof LanguageError && error.code === "IMPLICIT_PROMOTION",
+);
+
+console.log("PASS: lenguaje registra propuestas y bloquea promoción implícita");

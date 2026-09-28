@@ -1,0 +1,8 @@
+{
+  "name": "prometeo-lenguaje",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/proposals.test.mjs"
+  }
+}
