@@ -91,6 +91,7 @@ export function registerLanguageProposals({
     candidateIds.add(item.id);
     return {
       ...item,
+      attributes: item.attributes ?? {},
       state: "proposed",
       provenance: provenance(agentId, recordedAt),
     };
