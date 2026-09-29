@@ -1,6 +1,6 @@
 # promete-lenguaje
 
-Isla lingüística de Prometeo. Registra propuestas asociadas a fragmentos y conserva modalidad, alternativas, proveniencia y contexto; no confirma ni calcula.
+Isla lingüística de Prometeo. Solicita propuestas a un backend lingüístico inyectado, valida su salida contra los contratos y conserva modalidad, alternativas, preguntas, abstenciones, proveniencia y contexto. No confirma ni calcula.
 
 ## Límite de autoridad
 
