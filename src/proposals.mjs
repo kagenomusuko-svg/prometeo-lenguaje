@@ -43,18 +43,31 @@ export function registerLanguageProposals({
 
   if (context !== null) {
     object(context, "context");
-    if (context.contextStatus !== "map-locators-only") {
-      throw new LanguageError("INVALID_CONTEXT", "context must contain map locators only");
-    }
-    if (context.requiresSourceReading !== true) {
-      throw new LanguageError("INVALID_CONTEXT", "context must require source reading");
+    if (!["map-locators-only", "source-text-read"].includes(context.contextStatus)) {
+      throw new LanguageError("INVALID_CONTEXT", "context must be a locator map or a canonical source read");
     }
     if (!context.provenance || context.provenance.kind !== "deterministic-system") {
       throw new LanguageError("INVALID_CONTEXT_PROVENANCE", "context provenance must be deterministic");
     }
     requiredString(context.mapVersion, "context.mapVersion");
-    if (!Array.isArray(context.matches)) {
-      throw new LanguageError("INVALID_CONTEXT", "context.matches must be an array");
+    if (context.contextStatus === "map-locators-only") {
+      if (context.requiresSourceReading !== true || !Array.isArray(context.matches)) {
+        throw new LanguageError("INVALID_CONTEXT", "locator context must require source reading and contain matches");
+      }
+    } else {
+      if (context.requiresSourceReading !== false || !Array.isArray(context.sources)) {
+        throw new LanguageError("INVALID_CONTEXT", "read context must contain canonical sources and not require another read");
+      }
+      for (const source of context.sources) {
+        object(source, "context.sources[]");
+        requiredString(source.id, "context.sources[].id");
+        requiredString(source.sourceRef, "context.sources[].sourceRef");
+        requiredString(source.sourceVersion, "context.sources[].sourceVersion");
+        requiredString(source.text, "context.sources[].text");
+        if (source.contextOnly !== true) {
+          throw new LanguageError("INVALID_CONTEXT", "canonical sources must remain context-only");
+        }
+      }
     }
   }
   if (!Array.isArray(propositions) || propositions.length === 0) {
@@ -141,14 +154,39 @@ export function registerLanguageProposals({
 
   return {
     documentId: document.id,
-    contextReferences: context === null ? [] : context.matches.map((match) => ({
-      id: match.id,
-      category: match.category,
-      locator: match.locator ?? null,
-      evidenceStatus: match.evidenceStatus ?? "unclassified",
-      mapVersion: context.mapVersion,
-      sourceRef: context.provenance.sourceObjectId,
-    })),
+    contextReferences: context === null ? [] : (
+      context.contextStatus === "map-locators-only"
+        ? context.matches.map((match) => ({
+          id: match.id,
+          category: match.category,
+          locator: match.locator ?? null,
+          evidenceStatus: match.evidenceStatus ?? "unclassified",
+          mapVersion: context.mapVersion,
+          sourceRef: context.provenance.sourceObjectId,
+        }))
+        : context.sources.map((source) => ({
+          id: source.id,
+          category: source.category,
+          locator: source.locator ?? null,
+          evidenceStatus: source.mapEvidenceStatus ?? "unclassified",
+          mapVersion: context.mapVersion,
+          sourceRef: source.sourceRef,
+          sourceVersion: source.sourceVersion,
+          contextOnly: true,
+        }))
+    ),
+    contextSources: context?.contextStatus === "source-text-read"
+      ? context.sources.map((source) => ({
+        id: source.id,
+        category: source.category,
+        label: source.label,
+        locator: source.locator,
+        text: source.text,
+        sourceRef: source.sourceRef,
+        sourceVersion: source.sourceVersion,
+        contextOnly: true,
+      }))
+      : [],
 
     propositions: normalizedPropositions,
     candidates: normalizedCandidates,
