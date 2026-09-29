@@ -19,6 +19,7 @@ jobs:
         with:
           repository: kagenomusuko-svg/prometeo-contexto
           ref: 265111dfb5981560504a612cd2952b47a6a9e21b
+          token: ${{ secrets.PROMETEO_CONTEXT_TOKEN }}
           path: prometeocontexto
       - name: Setup Node
         uses: actions/setup-node@v4
