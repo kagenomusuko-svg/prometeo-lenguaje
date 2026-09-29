@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: kagenomusuko-svg/prometeo-contexto
-          ref: 265111dfb5981560504a612cd2952b47a6a9e21b
+          ref: 0ef514ac8dbc5b194a9ae25b4666cb4a0009a478
           token: ${{ secrets.PROMETEO_CONTEXT_TOKEN }}
           path: prometeocontexto
       - name: Setup Node
