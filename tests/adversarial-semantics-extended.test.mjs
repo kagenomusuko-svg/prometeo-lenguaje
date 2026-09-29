@@ -38,10 +38,10 @@ const result = registerLanguageProposals({
   context,
   propositions,
   candidates: [
-    { id: "candidate-contradiction", propositionId: "p-contradictory", category: "contradiction", label: "contradicción candidata" },
-    { id: "candidate-attribution", propositionId: "p-unverified-attribution", category: "attribution-unverified", label: "atribución no verificada" },
-    { id: "candidate-obligation", propositionId: "p-unestablished-obligation", category: "obligation-unestablished", label: "obligación no establecida" },
-    { id: "candidate-counterfactual", propositionId: "p-counterfactual", category: "counterfactual", label: "contrafactual candidato" },
+    { id: "candidate-contradiction", propositionId: "p-contradictory", category: "relation", attributes: { semanticType: "contradiction" }, label: "contradicción candidata" },
+    { id: "candidate-attribution", propositionId: "p-unverified-attribution", category: "actor", attributes: { semanticType: "attribution-unverified" }, label: "atribución no verificada" },
+    { id: "candidate-obligation", propositionId: "p-unestablished-obligation", category: "condition", attributes: { semanticType: "obligation-unestablished" }, label: "obligación no establecida" },
+    { id: "candidate-counterfactual", propositionId: "p-counterfactual", category: "relation", attributes: { semanticType: "counterfactual" }, label: "contrafactual candidato" },
   ],
   hypotheses: [
     { id: "hypothesis-x", caseId: "case-extended", label: "H1: X como explicación", candidateIds: ["candidate-attribution", "candidate-counterfactual"] },
@@ -53,7 +53,7 @@ const result = registerLanguageProposals({
 assert.deepEqual(result.propositions.map((item) => item.text), propositions.map((item) => item.text));
 assert.deepEqual(result.propositions.map((item) => item.modality), propositions.map((item) => item.modality));
 assert.deepEqual(result.candidates.map((item) => item.category), [
-  "contradiction", "attribution-unverified", "obligation-unestablished", "counterfactual",
+  "relation", "actor", "condition", "relation",
 ]);
 assert.deepEqual(result.hypotheses.map((item) => item.candidateIds), [
   ["candidate-attribution", "candidate-counterfactual"],
