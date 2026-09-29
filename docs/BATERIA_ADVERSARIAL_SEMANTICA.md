@@ -14,3 +14,6 @@ Verifica que:
 La batería prueba límites de contrato y autoridad. No pretende determinar si una proposición es verdadera ni resolver causalidad.
 
 La extensión cubre además contradicción, atribución no verificada, obligación no establecida y contrafactuales, conservando el texto y la modalidad sin convertirlos en evidencia ni conclusión causal.
+
+
+La prueba tests/context-source-reading.test.mjs recorre mapa → localizador → lectura canónica → uso contextual. Comprueba que el texto queda en contextSources, marcado contextOnly, con fuente y versión, y que no se convierte en evidencia del caso.
