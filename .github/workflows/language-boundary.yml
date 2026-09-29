@@ -14,6 +14,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Checkout contexto
+        uses: actions/checkout@v7
+        with:
+          repository: kagenomusuko-svg/prometeo-contexto
+          ref: 199bd936d06459a5728364506297819729090b07
+          path: prometeocontexto
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -22,4 +28,6 @@ jobs:
       - name: Install
         run: npm install --ignore-scripts
       - name: Run language contract and adversarial suite
+        env:
+          PROMETEO_CONTEXTO_PATH: ${{ github.workspace }}/prometeocontexto/src/query.mjs
         run: npm test
