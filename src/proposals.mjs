@@ -73,6 +73,9 @@ export function registerLanguageProposals({
     requiredString(item.id, "propositions[" + index + "].id");
     requiredString(item.fragmentId, "propositions[" + index + "].fragmentId");
     requiredString(item.text, "propositions[" + index + "].text");
+    if (!["asserted", "reported", "inferred", "possible", "obligatory", "denied", "unknown"].includes(item.modality)) {
+      throw new LanguageError("INVALID_MODALITY", "propositions[" + index + "].modality must match the contract");
+    }
     if (!fragmentIds.has(item.fragmentId)) {
       throw new LanguageError("UNKNOWN_FRAGMENT", item.fragmentId);
     }
