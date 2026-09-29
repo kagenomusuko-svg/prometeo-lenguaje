@@ -8,3 +8,4 @@
 - Se añade analyzeDocument, una frontera inyectable para backend de propuestas, preguntas, alternativas y abstenciones.
 - El adaptador valida modalidades, categorías y referencias, mantiene todas las salidas en estado propuesto y rechaza campos de autoridad.
 - La prueba del backend se incorpora a npm test; sus fixtures no sustituyen la evaluación sustantiva con un modelo real.
+- Se incorpora un benchmark sintético trazable de cinco casos y un evaluador de cobertura, modalidad, alternativas, preguntas, abstención y límites de autoridad; el backend fixture valida el instrumento, no la calidad de un modelo real.
