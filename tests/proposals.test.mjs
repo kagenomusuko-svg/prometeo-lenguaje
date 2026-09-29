@@ -53,6 +53,7 @@ assert.throws(
       id: "proposition-002",
       fragmentId: "document-001:fragment:1",
       text: "A causó Y.",
+      modality: "asserted",
       state: "accepted",
     }],
     recordedAt: "2026-09-28T17:30:00Z",
