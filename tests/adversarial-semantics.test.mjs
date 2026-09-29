@@ -61,7 +61,7 @@ expectError(() => registerLanguageProposals({
     ...context,
     contextStatus: "source-text-read",
     requiresSourceReading: false,
-    sources: [{ id: "source-invalid", text: "texto", contextOnly: false }],
+    sources: [{ id: "source-invalid", text: "texto", sourceRef: "Paradigma@source", sourceVersion: "sha256:source", contextOnly: false }],
   },
 }), "INVALID_CONTEXT");
 
