@@ -57,7 +57,12 @@ function expectError(build, code) {
 
 expectError(() => registerLanguageProposals({
   ...input,
-  context: { ...context, contextStatus: "source-text-read", requiresSourceReading: false },
+  context: {
+    ...context,
+    contextStatus: "source-text-read",
+    requiresSourceReading: false,
+    sources: [{ id: "source-invalid", text: "texto", contextOnly: false }],
+  },
 }), "INVALID_CONTEXT");
 
 expectError(() => registerLanguageProposals({
