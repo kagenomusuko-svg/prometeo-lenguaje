@@ -12,3 +12,5 @@ Verifica que:
 - la salida no contiene confirmedModel, evidence ni MotorRequest.
 
 La batería prueba límites de contrato y autoridad. No pretende determinar si una proposición es verdadera ni resolver causalidad.
+
+La extensión cubre además contradicción, atribución no verificada, obligación no establecida y contrafactuales, conservando el texto y la modalidad sin convertirlos en evidencia ni conclusión causal.
