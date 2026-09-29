@@ -101,7 +101,10 @@ export function registerLanguageProposals({
     }
     propositionIds.add(item.id);
     return {
-      ...item,
+      id: item.id,
+      fragmentId: item.fragmentId,
+      text: item.text,
+      modality: item.modality,
       state: "proposed",
       provenance: provenance(agentId, recordedAt),
     };
@@ -112,7 +115,19 @@ export function registerLanguageProposals({
     requiredString(item.id, "candidates[" + index + "].id");
     requiredString(item.propositionId, "candidates[" + index + "].propositionId");
     requiredString(item.category, "candidates[" + index + "].category");
+    if (!["actor", "event", "state", "condition", "relation", "omission"].includes(item.category)) {
+      throw new LanguageError("INVALID_CATEGORY", "candidates[" + index + "].category must match the contract");
+    }
     requiredString(item.label, "candidates[" + index + "].label");
+    if (item.attributes !== undefined && (!item.attributes || typeof item.attributes !== "object" || Array.isArray(item.attributes))) {
+      throw new LanguageError("INVALID_ATTRIBUTES", "candidates[" + index + "].attributes must be an object");
+    }
+    if (item.confidence !== undefined && (typeof item.confidence !== "number" || !Number.isFinite(item.confidence) || item.confidence < 0 || item.confidence > 1)) {
+      throw new LanguageError("INVALID_CONFIDENCE", "candidates[" + index + "].confidence must be between 0 and 1");
+    }
+    if (item.ambiguity !== undefined && (!Array.isArray(item.ambiguity) || item.ambiguity.some((value) => typeof value !== "string"))) {
+      throw new LanguageError("INVALID_AMBIGUITY", "candidates[" + index + "].ambiguity must be an array of strings");
+    }
     if (!propositionIds.has(item.propositionId)) {
       throw new LanguageError("UNKNOWN_PROPOSITION", item.propositionId);
     }
@@ -124,8 +139,13 @@ export function registerLanguageProposals({
     }
     candidateIds.add(item.id);
     return {
-      ...item,
+      id: item.id,
+      propositionId: item.propositionId,
+      category: item.category,
+      label: item.label,
       attributes: item.attributes ?? {},
+      ...(item.confidence === undefined ? {} : { confidence: item.confidence }),
+      ...(item.ambiguity === undefined ? {} : { ambiguity: item.ambiguity }),
       state: "proposed",
       provenance: provenance(agentId, recordedAt),
     };
@@ -136,6 +156,12 @@ export function registerLanguageProposals({
     requiredString(item.id, "hypotheses[" + index + "].id");
     requiredString(item.caseId, "hypotheses[" + index + "].caseId");
     requiredString(item.label, "hypotheses[" + index + "].label");
+    if (document.caseId && item.caseId !== document.caseId) {
+      throw new LanguageError("CASE_MISMATCH", item.caseId);
+    }
+    if (!Array.isArray(item.candidateIds ?? []) || !Array.isArray(item.relationIds ?? [])) {
+      throw new LanguageError("INVALID_HYPOTHESIS_REFERENCES", "candidateIds and relationIds must be arrays");
+    }
     if (item.status && item.status !== "proposed") {
       throw new LanguageError("IMPLICIT_PROMOTION", "hypotheses must remain proposed");
     }
@@ -145,7 +171,9 @@ export function registerLanguageProposals({
       }
     }
     return {
-      ...item,
+      id: item.id,
+      caseId: item.caseId,
+      label: item.label,
       candidateIds: item.candidateIds ?? [],
       relationIds: item.relationIds ?? [],
       status: "proposed",
