@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
-import { queryParadigma, readParadigmaSources } from "../../prometeo-contexto/src/query.mjs";
+import { pathToFileURL } from "node:url";
+
+if (!process.env.PROMETEO_CONTEXTO_PATH) {
+  throw new Error("PROMETEO_CONTEXTO_PATH es obligatorio para la integración contexto→lenguaje");
+}
+const { queryParadigma, readParadigmaSources } = await import(pathToFileURL(process.env.PROMETEO_CONTEXTO_PATH).href);
 import { registerLanguageProposals } from "../src/proposals.mjs";
 
 const mapDocument = {
