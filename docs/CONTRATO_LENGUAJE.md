@@ -27,3 +27,12 @@ El agente de lenguaje sólo propone. La confirmación, rechazo o modificación p
 ## Integración con contexto
 
 Las pruebas de integración consumen queryParadigma y readParadigmaSources mediante PROMETEO_CONTEXTO_PATH. El contexto puede entregarse como mapa de localizadores o como lectura canónica ya resuelta; en ambos casos se conserva su proveniencia. Se verifica que contextReferences conserve mapa, commit, locator, fuente y versión, y que el texto se exponga por separado como contextSources. El contexto no crea evidence; las propuestas siguen en proposed, exigen confirmación y no producen ConfirmedModel, MotorRequest ni resultados matemáticos.
+
+
+## Backend de propuestas
+
+analyzeDocument recibe un backend con el método asíncrono propose({ document, context }). El backend devuelve arreglos de propositions, candidates, hypotheses, questions y abstentions. Las tres primeras colecciones se validan y normalizan mediante registerLanguageProposals y las dos últimas se validan antes de incluirse en el resultado.
+
+Cada pregunta requiere id, text y reason. Cada abstención requiere scope y reason. Una respuesta sin proposiciones sólo es válida si declara al menos una abstención. El backend no puede devolver campos adicionales de autoridad como evidence, confirmedModel, MotorRequest o resultados matemáticos.
+
+El adaptador no impone proveedor ni modelo. Cualquier backend conectado debe pasar por esta frontera antes de que su salida se exponga.
