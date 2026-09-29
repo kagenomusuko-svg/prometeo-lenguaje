@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/proposals.test.mjs && node tests/contract-version.test.mjs && node tests/contract-compatibility.test.mjs && node tests/context-integration.test.mjs && node tests/adversarial-boundary.test.mjs && node tests/adversarial-semantics.test.mjs && node tests/adversarial-semantics-extended.test.mjs",
+    "test": "node tests/proposals.test.mjs && node tests/contract-version.test.mjs && node tests/contract-compatibility.test.mjs && node tests/context-integration.test.mjs && node tests/adversarial-boundary.test.mjs && node tests/adversarial-semantics.test.mjs && node tests/adversarial-semantics-extended.test.mjs && node tests/context-source-reading.test.mjs",
     "contract-version": "node tests/contract-version.test.mjs",
     "contract-compatibility": "node tests/contract-compatibility.test.mjs",
     "context-integration": "node tests/context-integration.test.mjs"
