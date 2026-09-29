@@ -60,4 +60,17 @@ assert.throws(
   (error) => error instanceof LanguageError && error.code === "IMPLICIT_PROMOTION",
 );
 
-console.log("PASS: lenguaje registra propuestas y bloquea promoción implícita");
+assert.throws(
+  () => registerLanguageProposals({
+    document,
+    propositions: [{
+      id: "proposition-missing-modality",
+      fragmentId: "document-001:fragment:1",
+      text: "La modalidad no fue proporcionada.",
+    }],
+    recordedAt: "2026-09-28T17:30:00Z",
+  }),
+  (error) => error instanceof LanguageError && error.code === "INVALID_MODALITY",
+);
+
+console.log("PASS: lenguaje registra propuestas, exige modalidad y bloquea promoción implícita");
