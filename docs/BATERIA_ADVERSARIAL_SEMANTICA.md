@@ -17,3 +17,6 @@ La extensión cubre además contradicción, atribución no verificada, obligaci�
 
 
 La prueba tests/context-source-reading.test.mjs recorre mapa → localizador → lectura canónica → uso contextual. Comprueba que el texto queda en contextSources, marcado contextOnly, con fuente y versión, y que no se convierte en evidencia del caso.
+
+
+La prueba tests/language-backend.test.mjs usa un backend determinista de fixture para verificar el ciclo de solicitud, propuestas con modalidades preservadas, alternativas, ambigüedad, preguntas y abstención. Incluye un caso de abstención total y rechaza cualquier intento de entregar un campo de autoridad no permitido. Este test verifica la frontera técnica; no mide la calidad de un modelo lingüístico real.
