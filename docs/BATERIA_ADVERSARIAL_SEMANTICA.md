@@ -20,3 +20,9 @@ La prueba tests/context-source-reading.test.mjs recorre mapa → localizador →
 
 
 La prueba tests/language-backend.test.mjs usa un backend determinista de fixture para verificar el ciclo de solicitud, propuestas con modalidades preservadas, alternativas, ambigüedad, preguntas y abstención. Incluye un caso de abstención total y rechaza cualquier intento de entregar un campo de autoridad no permitido. Este test verifica la frontera técnica; no mide la calidad de un modelo lingüístico real.
+
+## Benchmark trazable
+
+`fixtures/language-benchmark.json` define cinco fragmentos sintéticos con rúbricas explícitas para modalidad reportada/posible, contradicción entre fuentes, obligación no establecida, secuencia temporal sin medición causal y abstención ante texto insuficiente. `src/benchmark.mjs` mide propuestas, modalidades, candidatos, hipótesis, preguntas, abstenciones y preservación de los límites de autoridad.
+
+`tests/benchmark.test.mjs` verifica las rúbricas y el evaluador con un backend fixture. Ese test valida el instrumento, no la calidad lingüística: el benchmark completo debe correrse con un backend real configurado independientemente para obtener evidencia sustantiva.
