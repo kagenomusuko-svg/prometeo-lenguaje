@@ -16,7 +16,7 @@ const result = registerLanguageProposals({
       sourceVersion: "f1-contract",
     },
   },
-  propositions: [{ id: "proposition-contract", fragmentId: "fragment-contract", text: "Se observa X." }],
+  propositions: [{ id: "proposition-contract", fragmentId: "fragment-contract", text: "Se observa X.", modality: "asserted" }],
   candidates: [{ id: "candidate-contract", propositionId: "proposition-contract", category: "relation", label: "X podría relacionarse con Y" }],
   hypotheses: [{ id: "hypothesis-contract", caseId: "case-contract", label: "H1", candidateIds: ["candidate-contract"] }],
   recordedAt: "2026-09-28T20:00:00Z",
