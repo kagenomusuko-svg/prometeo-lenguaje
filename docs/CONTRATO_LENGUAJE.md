@@ -4,7 +4,7 @@
 
 Registrar salidas lingüísticas candidatas asociadas con fragmentos de fuente: proposiciones, candidatos semánticos e hipótesis alternativas.
 
-Puede recibir contexto de prometeo-contexto, pero ese contexto contiene únicamente localizadores del mapa externo de Paradigma y la obligación de leer la fuente canónica.
+Puede recibir contexto de prometeo-contexto en dos estados: localizadores que obligan a leer la fuente canónica, o texto canónico ya leído con referencia y versión. El texto se conserva como contextSources con contextOnly: true; no se mezcla con proposiciones, candidatos ni evidencia específica del caso.
 
 ## Autoridad
 
@@ -17,7 +17,8 @@ El agente de lenguaje sólo propone. La confirmación, rechazo o modificación p
 - cada hipótesis sólo referencia candidatos registrados;
 - toda salida queda en estado proposed;
 - la modalidad original se conserva;
-- los localizadores contextuales conservan mapa, commit y proveniencia;
+- los localizadores y textos contextuales conservan mapa, commit, fuente y versión;
+- el texto canónico leído permanece separado y marcado contextOnly: true;
 - el contexto no se transforma en evidencia ni conclusión;
 - se marca explícitamente que se requiere confirmación humana;
 - no se produce ConfirmedModel, MotorRequest ni resultado matemático.
@@ -25,4 +26,4 @@ El agente de lenguaje sólo propone. La confirmación, rechazo o modificación p
 
 ## Integración con contexto
 
-La prueba de integración consume `queryParadigma` mediante `PROMETEO_CONTEXTO_PATH`. El resultado se entrega a `registerLanguageProposals` como contexto de localizadores. Se verifica que `contextReferences` conserve mapa, commit, locator y estado de evidencia, mientras la salida lingüística permanece en `proposed` y no expone `ConfirmedModel`, `MotorRequest` ni resultados matemáticos.
+Las pruebas de integración consumen queryParadigma y readParadigmaSources mediante PROMETEO_CONTEXTO_PATH. El contexto puede entregarse como mapa de localizadores o como lectura canónica ya resuelta; en ambos casos se conserva su proveniencia. Se verifica que contextReferences conserve mapa, commit, locator, fuente y versión, y que el texto se exponga por separado como contextSources. El contexto no crea evidence; las propuestas siguen en proposed, exigen confirmación y no producen ConfirmedModel, MotorRequest ni resultados matemáticos.
