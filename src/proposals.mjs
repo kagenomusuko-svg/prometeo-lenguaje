@@ -35,6 +35,7 @@ export function registerLanguageProposals({
   context = null,
   agentId = "prometeo-lenguaje",
   recordedAt,
+  allowAbstention = false,
 }) {
   object(document, "document");
   requiredString(document.id, "document.id");
@@ -70,8 +71,8 @@ export function registerLanguageProposals({
       }
     }
   }
-  if (!Array.isArray(propositions) || propositions.length === 0) {
-    throw new LanguageError("MISSING_PROPOSITIONS", "at least one proposition is required");
+  if (!Array.isArray(propositions) || (propositions.length === 0 && allowAbstention !== true)) {
+    throw new LanguageError("MISSING_PROPOSITIONS", "at least one proposition is required unless the analysis explicitly abstains");
   }
   if (!Array.isArray(candidates) || !Array.isArray(hypotheses)) {
     throw new LanguageError("INVALID_PROPOSAL_SET", "candidates and hypotheses must be arrays");
@@ -193,5 +194,75 @@ export function registerLanguageProposals({
     hypotheses: normalizedHypotheses,
     requiresHumanConfirmation: true,
     provenance: provenance(agentId, recordedAt),
+  };
+}
+
+function validateGeneratedSet(generated) {
+  object(generated, "generated");
+  const allowed = new Set(["propositions", "candidates", "hypotheses", "questions", "abstentions"]);
+  for (const key of Object.keys(generated)) {
+    if (!allowed.has(key)) {
+      throw new LanguageError("UNAUTHORIZED_OUTPUT_FIELD", key);
+    }
+  }
+  for (const key of allowed) {
+    if (!Array.isArray(generated[key])) {
+      throw new LanguageError("INVALID_GENERATED_SET", key + " must be an array");
+    }
+  }
+  if (generated.propositions.length === 0 && generated.abstentions.length === 0) {
+    throw new LanguageError("EMPTY_ANALYSIS", "empty proposals require an explicit abstention");
+  }
+  generated.questions.forEach((question, index) => {
+    object(question, "questions[" + index + "]");
+    requiredString(question.id, "questions[" + index + "].id");
+    requiredString(question.text, "questions[" + index + "].text");
+    requiredString(question.reason, "questions[" + index + "].reason");
+  });
+  generated.abstentions.forEach((abstention, index) => {
+    object(abstention, "abstentions[" + index + "]");
+    if (!["document", "proposition", "candidate", "hypothesis", "relation"].includes(abstention.scope)) {
+      throw new LanguageError("INVALID_ABSTENTION", "abstentions[" + index + "].scope is invalid");
+    }
+    requiredString(abstention.reason, "abstentions[" + index + "].reason");
+  });
+}
+
+/**
+ * Ask an injected language backend for candidate structures, then enforce
+ * the shared proposal boundary before exposing the result.
+ */
+export async function analyzeDocument({
+  backend,
+  document,
+  context = null,
+  agentId = "prometeo-lenguaje",
+  recordedAt,
+}) {
+  if (!backend || typeof backend.propose !== "function") {
+    throw new LanguageError("BACKEND_REQUIRED", "backend.propose must be a function");
+  }
+  object(document, "document");
+  requiredString(document.id, "document.id");
+  requiredString(recordedAt, "recordedAt");
+
+  const generated = await backend.propose({ document, context });
+  validateGeneratedSet(generated);
+  const registered = registerLanguageProposals({
+    document,
+    context,
+    propositions: generated.propositions,
+    candidates: generated.candidates,
+    hypotheses: generated.hypotheses,
+    agentId,
+    recordedAt,
+    allowAbstention: generated.propositions.length === 0 && generated.abstentions.length > 0,
+  });
+
+  return {
+    ...registered,
+    questions: generated.questions,
+    abstentions: generated.abstentions,
+    analysisStatus: generated.propositions.length === 0 ? "abstained" : "proposals-produced",
   };
 }
