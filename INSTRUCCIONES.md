@@ -1,36 +1,31 @@
 # Instrucciones de desarrollo — promete-lenguaje
 
-## Requisitos
-- Node.js 22 o superior.
-- promete-contexto disponible localmente para pruebas de integración interrepositorio.
-- Para evaluación lingüística real: Ollama local y el modelo indicado en `.env.local`.
+## Validación del proyecto desde GitHub
 
-## Suite determinista y contractual
-Desde la raíz del repositorio:
+El propietario puede validar Prometeo desde GitHub en un iPad, sin instalar software ni ejecutar comandos locales.
 
-```sh
-npm install
-PROMETEO_CONTEXTO_PATH=/ruta/a/prometeo-contexto/src/query.mjs npm test
-```
+### Pruebas contractuales deterministas
 
-La suite cubre contratos, modalidad, propuestas, contexto, alternativas, el adaptador local y los invariantes de no promoción. Las respuestas simuladas prueban el protocolo y la validación; no cuentan como evaluación de calidad lingüística.
+El workflow `Prometeo language boundary` ejecuta la suite de contratos, integración y casos adversariales en cada cambio. Usa fixtures únicamente para verificar el protocolo y la frontera contractual; sus resultados no se cuentan como evaluación de calidad de un modelo.
 
-## Benchmark lingüístico real en local
+### Backend local real y benchmark epistemológico
 
-1. Copia `.env.example` a `.env.local`.
-2. Ajusta `PROMETEO_LANGUAGE_MODEL` a un modelo descargado localmente.
-3. Confirma que Ollama escucha en `http://127.0.0.1:11434` (o cambia `OLLAMA_BASE_URL` a otra dirección loopback).
-4. Descarga el modelo, si hace falta: `ollama pull qwen2.5:7b`.
-5. Ejecuta `npm run benchmark:local`.
+1. Abre **Actions** en `prometeo-lenguaje`.
+2. Selecciona **Prometeo local model benchmark**.
+3. Pulsa **Run workflow** en la rama `main`.
 
-La ejecución usa el modelo local real y falla si no puede contactar Ollama; no cambia a un mock. El JSON de métricas y muestras de propuestas sobre los fixtures sintéticos se guarda en `benchmark-results/`, una carpeta ignorada por Git. El runner no recibe documentos del caso. El reporte incluye cobertura de modalidades, claims requeridos/prohibidos, conteo de alucinaciones señaladas por rúbrica, promoción indebida, abstención y diversidad de hipótesis. La coincidencia textual de claims es una señal determinista y no sustituye la revisión semántica del resultado del modelo.
+GitHub Actions prepara Ollama y el modelo `qwen2.5:1.5b` en runners efímeros. No solicita ni usa claves de APIs comerciales.
 
-Variables de entorno:
-- `PROMETEO_LANGUAGE_BACKEND=ollama`
-- `PROMETEO_LANGUAGE_MODEL=<modelo local instalado>`
-- `OLLAMA_BASE_URL=http://127.0.0.1:11434`
+El workflow separa dos jobs:
+- `backend-live` ejecuta una generación real mediante `LanguageBackend` y `analyzeDocument`. La salida debe pasar la validación estricta; cualquier estructura contractual prohibida hace fallar el job. El reporte identifica modelo, estado, conteos y confirmación humana.
+- `epistemic-benchmark` ejecuta las cinco rúbricas sin mocks y produce un reporte con cobertura de modalidades, discriminación, claims requeridos/prohibidos, alucinaciones señaladas, sobrepromoción, abstención y diversidad de hipótesis. Las rúbricas no se debilitan para un modelo pequeño. Un modelo puede pasar `backend-live` y fallar este benchmark de calidad.
 
-La configuración de máquina vive en `.env.local` y no debe versionarse. `.env.example` sólo contiene valores ilustrativos. Este repositorio no necesita claves de APIs lingüísticas comerciales.
+Descarga los artefactos `backend-live-<run>` y `epistemic-benchmark-<run>` desde el run de Actions. Incluyen las muestras normalizadas sobre fixtures sintéticos; nunca procesan expedientes del caso. El reporte señala modelo y métricas para distinguir capacidad de ejecución de calidad.
 
-## Cambios contractuales
-No conviertas una propuesta en confirmación ni contexto doctrinal en evidencia del caso. Si se cambia la forma de salida, actualiza primero contratos compartidos y pruebas de compatibilidad. Toda modificación de modalidad requiere autorización normativa del propietario del proyecto. Ningún backend lingüístico puede emitir `AnalystDecision`, `ConfirmedModel`, `MotorRequest`, `MotorResult` ni `CalculationTrace`.
+## Lectura real de Paradigma
+
+El acceso a Paradigma es una prueba independiente. Ejecuta **Audit existing context token access to Paradigma** en este repositorio. Usa el secreto existente `PROMETEO_CONTEXT_TOKEN`, que ya permite checkout privado de `prometeo-contexto`, para probar lectura GET-only del commit fijado de Paradigma. No revela el secreto. Sólo si la ejecución evidencia que no tiene permiso de lectura se requiere que el propietario ajuste credenciales desde la configuración web de GitHub.
+
+## Desarrollo opcional en una computadora
+
+Desarrolladores con una estación local pueden ejecutar `npm test`, `npm run benchmark:backend-live` o `npm run benchmark:local`. El entorno local y `.env.local` son opcionales y no forman parte de ningún Gate exigido al propietario. No añadas credenciales comerciales a la configuración.
