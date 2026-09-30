@@ -72,5 +72,6 @@ assert.equal(report.passedCount, 1);
 assert.equal(report.results[0].passed, true);
 assert.equal(report.summary.coverageRate, 1);
 assert.equal(report.summary.casesWithHallucinationSignals, 0);
+assert.equal(report.results[0].sample.propositions[0].text, "Se reporta un hecho.");
 
 console.log("PASS: benchmark lingüístico mide cobertura, modalidad y límites sin confundir fixtures con calidad real");
