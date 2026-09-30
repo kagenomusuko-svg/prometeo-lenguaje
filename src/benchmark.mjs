@@ -28,7 +28,21 @@ export function evaluateBenchmarkResult(result, rubric) {
   const modalities = propositions.map((item) => item.modality);
   const abstentionScopes = abstentions.map((item) => item.scope);
   const propositionText = propositions.map((item) => String(item.text ?? "").toLocaleLowerCase()).join(" ");
-  const hypothesisLabels = hypotheses.map((item) => String(item.label ?? "").trim().toLocaleLowerCase()).filter(Boolean);
+  const hypothesisLabels = [...new Set(hypotheses.map((item) => String(item.label ?? "").trim().toLocaleLowerCase()).filter(Boolean))];
+  const hypothesisTokenSets = hypothesisLabels.map((label) => contentTokens(label));
+  let hypothesisDiversity = 0;
+  let hypothesisPairCount = 0;
+  for (let left = 0; left < hypothesisTokenSets.length; left += 1) {
+    for (let right = left + 1; right < hypothesisTokenSets.length; right += 1) {
+      const a = hypothesisTokenSets[left];
+      const b = hypothesisTokenSets[right];
+      const union = new Set([...a, ...b]);
+      const intersection = [...a].filter((token) => b.has(token)).length;
+      hypothesisDiversity += union.size === 0 ? 0 : 1 - intersection / union.size;
+      hypothesisPairCount += 1;
+    }
+  }
+  hypothesisDiversity = hypothesisPairCount === 0 ? 0 : hypothesisDiversity / hypothesisPairCount;
   const requiredModalities = rubric.requiredModalities ?? [];
   const coveredModalities = requiredModalities.filter((modality) => modalities.includes(modality));
   const forbiddenClaims = rubric.forbiddenPropositionTerms ?? [];
@@ -108,7 +122,7 @@ export function evaluateBenchmarkResult(result, rubric) {
       modalityDiscriminationCount: new Set(modalities).size,
       requiredClaimsCovered: requiredClaims.length - missingRequiredClaims.length,
       hallucinationCount: hallucinationMatches.length,
-      hypothesisDiversity: new Set(hypothesisLabels).size,
+      hypothesisDiversity,
       unanchoredPropositionCount: unanchoredPropositions,
       abstentionScopeRecall: requiredAbstentionScopes.length === 0 ? 1 : correctAbstentions.length / requiredAbstentionScopes.length,
       overpromotionCount:
