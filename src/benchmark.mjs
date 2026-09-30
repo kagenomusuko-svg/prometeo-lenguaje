@@ -135,11 +135,15 @@ export async function runLanguageBenchmark({ analyze, backend, benchmark, record
         recordedAt,
       });
     } catch (error) {
+      const errorCode = error.code || "LANGUAGE_VALIDATION_FAILED";
+      const authorityFieldAttempt = error.code === "UNAUTHORIZED_OUTPUT_FIELD"
+        && /(?:evidence|analystdecision|confirmedmodel|motorrequest|motorresult|calculationtrace)/iu.test(error.message);
+      const overpromotionAttempt = error.code === "IMPLICIT_PROMOTION" || authorityFieldAttempt;
       results.push({
         caseId: testCase.id,
         passed: false,
         failures: ["backend-fail-closed"],
-        errorCode: error.code || "LANGUAGE_VALIDATION_FAILED",
+        errorCode,
         metrics: {
           propositionCount: 0,
           candidateCount: 0,
@@ -155,7 +159,7 @@ export async function runLanguageBenchmark({ analyze, backend, benchmark, record
           hypothesisDiversity: 0,
           unanchoredPropositionCount: 0,
           abstentionScopeRecall: 0,
-          overpromotionCount: 1,
+          overpromotionCount: overpromotionAttempt ? 1 : 0,
         },
         sample: null,
       });
