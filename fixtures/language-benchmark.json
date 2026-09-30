@@ -1,7 +1,7 @@
 {
   "benchmarkId": "prometeo-language-boundary-v1",
   "version": 1,
-  "purpose": "Measure proposal coverage, modality preservation, ambiguity handling, alternatives, questions and abstention on synthetic traceable fragments.",
+  "purpose": "Measure proposal coverage, modality preservation and discrimination, unsupported claims, overpromotion, abstention, and hypothesis diversity on synthetic traceable fragments.",
   "limitations": [
     "Cases are synthetic and do not validate doctrinal interpretation of Paradigma.",
     "A fixture backend can test the evaluator only; quality claims require running an independently configured real language backend.",
@@ -14,13 +14,26 @@
         "id": "bench-reported-possibility",
         "caseId": "bench-case-1",
         "fragments": [
-          { "id": "bench-reported-possibility:f1", "text": "El informe de guardia registra que Laura dijo que la válvula pudo fallar durante el turno nocturno." }
+          {
+            "id": "bench-reported-possibility:f1",
+            "text": "El informe de guardia registra que Laura dijo que la válvula pudo fallar durante el turno nocturno."
+          }
         ]
       },
       "rubric": {
-        "requiredModalities": ["reported", "possible"],
+        "requiredModalities": [
+          "reported",
+          "possible"
+        ],
         "minimumPropositions": 2,
-        "minimumQuestions": 1
+        "minimumQuestions": 1,
+        "requiredPropositionTerms": [
+          "Laura",
+          "válvula"
+        ],
+        "forbiddenPropositionTerms": [
+          "la válvula falló durante el turno nocturno"
+        ]
       }
     },
     {
@@ -29,14 +42,27 @@
         "id": "bench-contradictory-accounts",
         "caseId": "bench-case-2",
         "fragments": [
-          { "id": "bench-contradictory-accounts:f1", "text": "El registro A afirma que el portón estaba cerrado a las 18:00; el registro B afirma que estaba abierto a esa misma hora." }
+          {
+            "id": "bench-contradictory-accounts:f1",
+            "text": "El registro A afirma que el portón estaba cerrado a las 18:00; el registro B afirma que estaba abierto a esa misma hora."
+          }
         ]
       },
       "rubric": {
-        "requiredModalities": ["reported"],
+        "requiredModalities": [
+          "reported"
+        ],
         "minimumPropositions": 2,
         "minimumHypotheses": 2,
-        "minimumQuestions": 1
+        "minimumQuestions": 1,
+        "requiredPropositionTerms": [
+          "registro A",
+          "registro B"
+        ],
+        "forbiddenPropositionTerms": [
+          "el portón estaba abierto a las 19:00"
+        ],
+        "minimumUniqueHypotheses": 2
       }
     },
     {
@@ -45,14 +71,28 @@
         "id": "bench-unestablished-duty",
         "caseId": "bench-case-3",
         "fragments": [
-          { "id": "bench-unestablished-duty:f1", "text": "La supervisora afirma que Omar omitió avisar antes de cerrar el almacén. El fragmento no identifica una norma ni a quién se aplicaba." }
+          {
+            "id": "bench-unestablished-duty:f1",
+            "text": "La supervisora afirma que Omar omitió avisar antes de cerrar el almacén. El fragmento no identifica una norma ni a quién se aplicaba."
+          }
         ]
       },
       "rubric": {
-        "requiredModalities": ["reported"],
-        "forbiddenModalities": ["obligatory"],
+        "requiredModalities": [
+          "reported"
+        ],
+        "forbiddenModalities": [
+          "obligatory"
+        ],
         "minimumPropositions": 1,
-        "minimumQuestions": 1
+        "minimumQuestions": 1,
+        "requiredPropositionTerms": [
+          "supervisora",
+          "Omar"
+        ],
+        "forbiddenPropositionTerms": [
+          "Omar incumplió una obligación"
+        ]
       }
     },
     {
@@ -61,14 +101,29 @@
         "id": "bench-temporal-order",
         "caseId": "bench-case-4",
         "fragments": [
-          { "id": "bench-temporal-order:f1", "text": "Tras cambiar el filtro, el equipo reportó menos fallas. El documento no registra tasas anteriores ni compara otros cambios realizados ese día." }
+          {
+            "id": "bench-temporal-order:f1",
+            "text": "Tras cambiar el filtro, el equipo reportó menos fallas. El documento no registra tasas anteriores ni compara otros cambios realizados ese día."
+          }
         ]
       },
       "rubric": {
-        "requiredModalities": ["reported", "unknown"],
+        "requiredModalities": [
+          "reported",
+          "unknown"
+        ],
         "minimumPropositions": 1,
         "minimumQuestions": 1,
-        "requiredAbstentionScopes": ["relation"]
+        "requiredAbstentionScopes": [
+          "relation"
+        ],
+        "requiredPropositionTerms": [
+          "filtro",
+          "fallas"
+        ],
+        "forbiddenPropositionTerms": [
+          "el filtro causó la reducción"
+        ]
       }
     },
     {
@@ -77,13 +132,18 @@
         "id": "bench-insufficient-text",
         "caseId": "bench-case-5",
         "fragments": [
-          { "id": "bench-insufficient-text:f1", "text": "Fragmento parcialmente ilegible: «… se autorizó …»." }
+          {
+            "id": "bench-insufficient-text:f1",
+            "text": "Fragmento parcialmente ilegible: «… se autorizó …»."
+          }
         ]
       },
       "rubric": {
         "maximumPropositions": 0,
         "minimumAbstentions": 1,
-        "requiredAbstentionScopes": ["document"]
+        "requiredAbstentionScopes": [
+          "document"
+        ]
       }
     }
   ]
