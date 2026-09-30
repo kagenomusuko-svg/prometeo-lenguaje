@@ -1,0 +1,81 @@
+name: Prometeo local model benchmark
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROMETEO_LANGUAGE_BACKEND: ollama
+  PROMETEO_LANGUAGE_MODEL: qwen2.5:1.5b
+  OLLAMA_BASE_URL: http://127.0.0.1:11434
+
+jobs:
+  backend-live:
+    name: backend-live (Ollama real)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+      - name: Start Ollama and download model
+        run: |
+          ollama serve > "$RUNNER_TEMP/ollama.log" 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$PROMETEO_LANGUAGE_MODEL"
+          ollama --version
+      - name: Execute real backend and epistemic invariants
+        run: node scripts/run-backend-live.mjs
+      - name: Preserve backend-live report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-live-${{ github.run_id }}
+          path: benchmark-results/backend-live.json
+          if-no-files-found: error
+          retention-days: 90
+
+  epistemic-benchmark:
+    name: epistemic-benchmark (real model quality)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+      - name: Start Ollama and download model
+        run: |
+          ollama serve > "$RUNNER_TEMP/ollama.log" 2>&1 &
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1:11434/api/tags >/dev/null
+          ollama pull "$PROMETEO_LANGUAGE_MODEL"
+          ollama --version
+      - name: Run five-case real epistemic benchmark
+        run: npm run benchmark:local
+      - name: Preserve benchmark metrics and samples
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: epistemic-benchmark-${{ github.run_id }}
+          path: benchmark-results/
+          if-no-files-found: error
+          retention-days: 90
