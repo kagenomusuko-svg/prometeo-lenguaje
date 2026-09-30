@@ -78,6 +78,7 @@ const failClosedBenchmark = {
   benchmarkId: "benchmark-fail-closed-test",
   cases: [
     { id: "invalid-output", document: { id: "doc-bad", fragments: [{ id: "doc-bad:f1", text: "No guardar salida prohibida." }] }, rubric: {} },
+    { id: "duplicate-id", document: { id: "doc-duplicate", fragments: [{ id: "doc-duplicate:f1", text: "El ID está duplicado." }] }, rubric: {} },
     runnable.cases[0],
   ],
 };
@@ -88,6 +89,11 @@ const failClosedReport = await runLanguageBenchmark({
     if (analysisCall === 1) {
       const error = new Error("generated.confirmedModel is forbidden");
       error.code = "UNAUTHORIZED_OUTPUT_FIELD";
+      throw error;
+    }
+    if (analysisCall === 2) {
+      const error = new Error("duplicate proposition id");
+      error.code = "DUPLICATE_ID";
       throw error;
     }
     return {
@@ -104,13 +110,16 @@ const failClosedReport = await runLanguageBenchmark({
   recordedAt: "2026-09-29T22:00:00Z",
   backend: { async propose() { return {}; } },
 });
-assert.equal(failClosedReport.caseCount, 2);
+assert.equal(failClosedReport.caseCount, 3);
 assert.equal(failClosedReport.passedCount, 1);
 assert.equal(failClosedReport.results[0].errorCode, "UNAUTHORIZED_OUTPUT_FIELD");
 assert.equal(failClosedReport.results[0].failures[0], "backend-fail-closed");
 assert.equal(failClosedReport.results[0].sample, null);
-assert.equal(failClosedReport.results[1].passed, true);
+assert.equal(failClosedReport.results[0].metrics.overpromotionCount, 1);
+assert.equal(failClosedReport.results[1].errorCode, "DUPLICATE_ID");
+assert.equal(failClosedReport.results[1].metrics.overpromotionCount, 0);
+assert.equal(failClosedReport.results[2].passed, true);
 assert.equal(failClosedReport.summary.overpromotionCount, 1);
-assert.equal(failClosedReport.summary.passedRate, 0.5);
+assert.equal(failClosedReport.summary.passedRate, 1/3);
 
 console.log("PASS: benchmark lingüístico mide cobertura, modalidad y límites sin confundir fixtures con calidad real");
