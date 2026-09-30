@@ -9,3 +9,10 @@
 - El adaptador valida modalidades, categorías y referencias, mantiene todas las salidas en estado propuesto y rechaza campos de autoridad.
 - La prueba del backend se incorpora a npm test; sus fixtures no sustituyen la evaluación sustantiva con un modelo real.
 - Se incorpora un benchmark sintético trazable de cinco casos y un evaluador de cobertura, modalidad, alternativas, preguntas, abstención y límites de autoridad; el backend fixture valida el instrumento, no la calidad de un modelo real.
+
+## 2026-09-30
+- Se establece la interfaz `LanguageBackend` y se añade un adaptador `ollama` que sólo llama a un servicio loopback.
+- La validación fail-closed rechaza campos adicionales, decisiones y contratos de autoridad en la salida del modelo.
+- Se añade configuración segura en `.env.example` y se ignoran `.env`, `.env.local` y reportes locales.
+- El benchmark ampliado se ejecuta con `npm run benchmark:local` contra el modelo Ollama configurado y mide cobertura/modalidad, claims de alucinación, sobrepromoción, abstención y diversidad.
+- `npm test` conserva pruebas deterministas; el CI no requiere servicios externos ni claves de proveedor lingüístico.
