@@ -3,9 +3,12 @@ const FORBIDDEN_AUTHORITY_FIELDS = [
   "confirmedModel",
   "motorRequest",
   "causalConclusion",
+  "analystDecision",
+  "motorResult",
+  "calculationTrace",
 ];
 
-export function contentTokens(value) {
+function contentTokens(value) {
   return new Set(
     String(value ?? "")
       .toLocaleLowerCase()
@@ -140,7 +143,7 @@ export async function runLanguageBenchmark({ analyze, backend, benchmark, record
     passedCount: results.filter((item) => item.passed).length,
     summary: {
       coverageRate: results.length === 0 ? 0 : results.reduce((sum, item) => sum + item.metrics.requiredModalityCoverage, 0) / results.length,
-      casesWithHallucinations: results.filter((item) => item.metrics.hallucinationCount > 0 || item.metrics.unanchoredPropositionCount > 0).length,
+      casesWithHallucinationSignals: results.filter((item) => item.metrics.hallucinationCount > 0 || item.metrics.unanchoredPropositionCount > 0).length,
       unanchoredPropositionCount: results.reduce((sum, item) => sum + item.metrics.unanchoredPropositionCount, 0),
       abstentionScopeRecall: results.length === 0 ? 0 : results.reduce((sum, item) => sum + item.metrics.abstentionScopeRecall, 0) / results.length,
       overpromotionCount: results.reduce((sum, item) => sum + item.metrics.overpromotionCount, 0),
