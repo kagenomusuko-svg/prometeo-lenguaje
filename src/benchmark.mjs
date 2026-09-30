@@ -14,6 +14,18 @@ export function evaluateBenchmarkResult(result, rubric) {
   const abstentions = Array.isArray(result?.abstentions) ? result.abstentions : [];
   const modalities = propositions.map((item) => item.modality);
   const abstentionScopes = abstentions.map((item) => item.scope);
+  const propositionText = propositions.map((item) => String(item.text ?? "").toLocaleLowerCase()).join(" ");
+  const hypothesisLabels = hypotheses.map((item) => String(item.label ?? "").trim().toLocaleLowerCase()).filter(Boolean);
+  const requiredModalities = rubric.requiredModalities ?? [];
+  const coveredModalities = requiredModalities.filter((modality) => modalities.includes(modality));
+  const forbiddenClaims = rubric.forbiddenPropositionTerms ?? [];
+  const hallucinationMatches = forbiddenClaims.filter((term) =>
+    propositionText.includes(String(term).toLocaleLowerCase())
+  );
+  const requiredClaims = rubric.requiredPropositionTerms ?? [];
+  const missingRequiredClaims = requiredClaims.filter((term) =>
+    !propositionText.includes(String(term).toLocaleLowerCase())
+  );
 
   for (const modality of rubric.requiredModalities ?? []) {
     if (!modalities.includes(modality)) failures.push("missing-modality:" + modality);
@@ -32,6 +44,14 @@ export function evaluateBenchmarkResult(result, rubric) {
   }
   if (rubric.minimumHypotheses !== undefined && hypotheses.length < rubric.minimumHypotheses) {
     failures.push("too-few-hypotheses");
+  }
+  if (rubric.minimumUniqueHypotheses !== undefined && new Set(hypothesisLabels).size < rubric.minimumUniqueHypotheses) {
+    failures.push("insufficient-hypothesis-diversity");
+  }
+  if (missingRequiredClaims.length > 0) failures.push("missing-required-claim");
+  if (hallucinationMatches.length > 0) failures.push("forbidden-claim-present");
+  if (rubric.minimumUniqueModalities !== undefined && new Set(modalities).size < rubric.minimumUniqueModalities) {
+    failures.push("insufficient-modality-discrimination");
   }
   if (rubric.minimumQuestions !== undefined && questions.length < rubric.minimumQuestions) {
     failures.push("too-few-questions");
@@ -61,6 +81,16 @@ export function evaluateBenchmarkResult(result, rubric) {
       abstentionCount: abstentions.length,
       modalities: [...new Set(modalities)].sort(),
       abstentionScopes: [...new Set(abstentionScopes)].sort(),
+      requiredModalityCoverage: requiredModalities.length === 0 ? 1 : coveredModalities.length / requiredModalities.length,
+      modalityDiscriminationCount: new Set(modalities).size,
+      requiredClaimsCovered: requiredClaims.length - missingRequiredClaims.length,
+      hallucinationCount: hallucinationMatches.length,
+      hypothesisDiversity: new Set(hypothesisLabels).size,
+      overpromotionCount:
+        propositions.filter((item) => item.state !== "proposed").length
+        + candidates.filter((item) => item.state !== "proposed").length
+        + hypotheses.filter((item) => item.status !== "proposed").length
+        + failures.filter((failure) => failure.startsWith("forbidden-authority-field:")).length,
     },
   };
 }
@@ -86,6 +116,13 @@ export async function runLanguageBenchmark({ analyze, backend, benchmark, record
     benchmarkId: benchmark.benchmarkId,
     caseCount: results.length,
     passedCount: results.filter((item) => item.passed).length,
+    summary: {
+      coverageRate: results.length === 0 ? 0 : results.reduce((sum, item) => sum + item.metrics.requiredModalityCoverage, 0) / results.length,
+      casesWithHallucinations: results.filter((item) => item.metrics.hallucinationCount > 0).length,
+      overpromotionCount: results.reduce((sum, item) => sum + item.metrics.overpromotionCount, 0),
+      meanHypothesisDiversity: results.length === 0 ? 0 : results.reduce((sum, item) => sum + item.metrics.hypothesisDiversity, 0) / results.length,
+      passedRate: results.length === 0 ? 0 : results.filter((item) => item.passed).length / results.length,
+    },
     results,
   };
 }
