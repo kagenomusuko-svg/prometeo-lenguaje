@@ -17,3 +17,6 @@
 - El benchmark ampliado se ejecuta con `npm run benchmark:local` contra el modelo Ollama configurado y mide cobertura/modalidad, claims de alucinación, sobrepromoción, abstención y diversidad.
 - El reporte local conserva muestras normalizadas de las propuestas para revisión humana, sólo sobre el dataset sintético fijo.
 - `npm test` conserva pruebas deterministas; el CI no requiere servicios externos ni claves de proveedor lingüístico.
+
+- Se añade workflow manual de Actions con Ollama efímero y `qwen2.5:1.5b`, separado en `backend-live` y `epistemic-benchmark`; conserva reportes descargables sin pedir ejecución local al propietario.
+- Se añade auditoría manual GET-only que prueba el secreto ya configurado `PROMETEO_CONTEXT_TOKEN` para lectura del Paradigma fijado, sin revelar su valor ni duplicarlo.
