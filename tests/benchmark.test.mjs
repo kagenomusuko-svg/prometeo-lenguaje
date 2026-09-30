@@ -41,7 +41,7 @@ assert.ok(violating.failures.includes("forbidden-authority-field:confirmedModel"
 assert.ok(violating.failures.includes("forbidden-claim-present"));
 assert.ok(violating.failures.includes("insufficient-hypothesis-diversity"));
 assert.equal(violating.metrics.hallucinationCount, 1);
-assert.equal(violating.metrics.overpromotionCount, 1);
+assert.equal(violating.metrics.overpromotionCount, 2);
 
 const runnable = {
   benchmarkId: "benchmark-runner-test",
