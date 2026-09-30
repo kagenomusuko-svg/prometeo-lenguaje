@@ -41,27 +41,40 @@ const backend = createLanguageBackend({
 });
 const benchmark = JSON.parse(await readFile(resolve(root, "fixtures/language-benchmark.json"), "utf8"));
 const startedAt = new Date().toISOString();
-const report = await runLanguageBenchmark({
-  analyze: analyzeDocument,
-  backend,
-  benchmark,
-  recordedAt: startedAt
-});
+let report = null;
+let failClosed = null;
+try {
+  report = await runLanguageBenchmark({
+    analyze: analyzeDocument,
+    backend,
+    benchmark,
+    recordedAt: startedAt
+  });
+} catch (error) {
+  // Keep the report useful without preserving or printing untrusted model output.
+  failClosed = {
+    status: "FAIL_CLOSED",
+    code: error.code || "LANGUAGE_VALIDATION_FAILED",
+    message: error.message
+  };
+}
 const completedAt = new Date().toISOString();
 const result = {
-  benchmarkId: report.benchmarkId,
+  benchmarkId: benchmark.benchmarkId,
   backend: "ollama-local",
   model: backend.model,
   startedAt,
   completedAt,
-  caseCount: report.caseCount,
-  passedCount: report.passedCount,
-  summary: report.summary,
-  results: report.results
+  caseCount: report?.caseCount ?? benchmark.cases.length,
+  passedCount: report?.passedCount ?? 0,
+  epistemicStatus: failClosed ? "FAIL_CLOSED" : (report.passedCount === report.caseCount ? "PASS" : "FAIL"),
+  failClosed,
+  summary: report?.summary ?? null,
+  results: report?.results ?? []
 };
 const filename = "benchmark-" + completedAt.replace(/[:.]/gu, "-") + ".json";
 const outputPath = resolve(root, "benchmark-results", filename);
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, JSON.stringify(result, null, 2) + "\n", { mode: 0o600 });
 console.log(JSON.stringify({ ...result, reportPath: "benchmark-results/" + filename }, null, 2));
-if (report.passedCount !== report.caseCount) process.exitCode = 1;
+if (failClosed || report.passedCount !== report.caseCount) process.exitCode = 1;
