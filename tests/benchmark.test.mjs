@@ -74,4 +74,43 @@ assert.equal(report.summary.coverageRate, 1);
 assert.equal(report.summary.casesWithHallucinationSignals, 0);
 assert.equal(report.results[0].sample.propositions[0].text, "Se reporta un hecho.");
 
+const failClosedBenchmark = {
+  benchmarkId: "benchmark-fail-closed-test",
+  cases: [
+    { id: "invalid-output", document: { id: "doc-bad", fragments: [{ id: "doc-bad:f1", text: "No guardar salida prohibida." }] }, rubric: {} },
+    runnable.cases[0],
+  ],
+};
+let analysisCall = 0;
+const failClosedReport = await runLanguageBenchmark({
+  analyze: async () => {
+    analysisCall += 1;
+    if (analysisCall === 1) {
+      const error = new Error("generated.confirmedModel is forbidden");
+      error.code = "UNAUTHORIZED_OUTPUT_FIELD";
+      throw error;
+    }
+    return {
+      documentId: "doc-1",
+      requiresHumanConfirmation: true,
+      propositions: [{ id: "p1", fragmentId: "doc-1:f1", text: "Se reporta un hecho.", modality: "reported", state: "proposed" }],
+      candidates: [],
+      hypotheses: [],
+      questions: [],
+      abstentions: [],
+    };
+  },
+  benchmark: failClosedBenchmark,
+  recordedAt: "2026-09-29T22:00:00Z",
+  backend: { async propose() { return {}; } },
+});
+assert.equal(failClosedReport.caseCount, 2);
+assert.equal(failClosedReport.passedCount, 1);
+assert.equal(failClosedReport.results[0].errorCode, "UNAUTHORIZED_OUTPUT_FIELD");
+assert.equal(failClosedReport.results[0].failures[0], "backend-fail-closed");
+assert.equal(failClosedReport.results[0].sample, null);
+assert.equal(failClosedReport.results[1].passed, true);
+assert.equal(failClosedReport.summary.overpromotionCount, 1);
+assert.equal(failClosedReport.summary.passedRate, 0.5);
+
 console.log("PASS: benchmark lingüístico mide cobertura, modalidad y límites sin confundir fixtures con calidad real");
