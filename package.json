@@ -7,6 +7,7 @@
     "contract-version": "node tests/contract-version.test.mjs",
     "contract-compatibility": "node tests/contract-compatibility.test.mjs",
     "context-integration": "node tests/context-integration.test.mjs",
-    "benchmark:local": "node scripts/run-local-benchmark.mjs"
+    "benchmark:local": "node scripts/run-local-benchmark.mjs",
+    "benchmark:backend-live": "node scripts/run-backend-live.mjs"
   }
 }
