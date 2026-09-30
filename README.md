@@ -10,14 +10,14 @@ No se requiere API key de proveedor lingüístico. El propietario puede administ
 
 ## Benchmark real en GitHub Actions
 
-En **Actions → Prometeo local model benchmark → Run workflow**, el runner efímero instala Ollama, descarga `qwen2.5:1.5b` y ejecuta dos jobs separados:
+En **Actions → Prometeo local model benchmark → Run workflow**, el runner efímero instala Ollama, descarga `qwen2.5:3b` y ejecuta dos jobs separados:
 
 - `backend-live`: invoca el adaptador real, valida el resultado mediante `analyzeDocument` y comprueba invariantes de propuesta y confirmación humana.
 - `epistemic-benchmark`: evalúa los cinco casos sintéticos con el modelo real. Mide cobertura, modalidad, discriminación, claims de alucinación, promoción indebida, abstención y diversidad de hipótesis. No reduce las rúbricas; un resultado insuficiente deja este job en fallo aunque `backend-live` pase.
 
 Ambos reportes se guardan como artefactos de Actions durante 90 días. Cada reporte identifica el modelo. No se usan mocks ni credenciales comerciales en estos jobs. La suite determinista sigue disponible como CI normal para probar contratos.
 
-El modelo inicial de CI es `qwen2.5:1.5b` para limitar descarga y memoria del runner; no se interpreta su ejecución como evidencia de calidad suficiente. La configuración Ollama local de `.env.example` es opcional para desarrolladores con una estación local y no es un requisito de validación o cierre.
+La primera ejecución real con `qwen2.5:1.5b` pasó `backend-live` pero obtuvo `0/5` casos en `epistemic-benchmark` (cobertura modal media `0.30`). El modelo evidenció pérdida de modalidad, IDs duplicados y exceso de candidatos con texto insuficiente. Se cambió la próxima ejecución a `qwen2.5:3b`; el cambio busca evaluar una capacidad mayor, pero no altera ninguna rúbrica. Sólo los artefactos de cada run acreditan el modelo usado. La configuración Ollama local de `.env.example` es opcional y no es requisito de validación o cierre.
 
 ## Contexto privado Paradigma
 
