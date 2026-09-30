@@ -1,0 +1,6 @@
+# Machine-local configuration and generated benchmark reports
+.env
+.env.*
+!.env.example
+benchmark-results/
+node_modules/
