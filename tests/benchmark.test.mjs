@@ -26,7 +26,7 @@ assert.equal(passing.passed, true);
 
 const violating = evaluateBenchmarkResult({
   ...sample,
-  propositions: [{ modality: "obligatory", state: "confirmed" }],
+  propositions: [{ modality: "obligatory", state: "confirmed", text: "Omar incumplió una obligación" }],
   confirmedModel: { id: "unauthorized" },
 }, {
   requiredModalities: ["reported"],
