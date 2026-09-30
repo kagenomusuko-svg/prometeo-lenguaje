@@ -23,6 +23,23 @@ const passing = evaluateBenchmarkResult(sample, {
   requiredAbstentionScopes: ["document"],
 });
 assert.equal(passing.passed, true);
+assert.equal(passing.metrics.hypothesisDiversity, 0, "one hypothesis has no pairwise diversity");
+const diverse = evaluateBenchmarkResult({
+  ...sample,
+  hypotheses: [
+    { id: "h1", label: "El registro reporta puerta cerrada", status: "proposed" },
+    { id: "h2", label: "El informe describe válvula abierta", status: "proposed" },
+  ],
+}, {});
+assert.equal(diverse.metrics.hypothesisDiversity, 1, "disjoint hypothesis terms have maximal lexical distance");
+const redundant = evaluateBenchmarkResult({
+  ...sample,
+  hypotheses: [
+    { id: "h1", label: "El registro reporta puerta cerrada", status: "proposed" },
+    { id: "h2", label: "El registro reporta puerta cerrada", status: "proposed" },
+  ],
+}, {});
+assert.equal(redundant.metrics.hypothesisDiversity, 0, "identical hypotheses have no diversity");
 
 const violating = evaluateBenchmarkResult({
   ...sample,
