@@ -23,3 +23,7 @@
 
 - Benchmark real en Actions, run `36745569690`: `backend-live` PASS con `qwen2.5:1.5b`; `epistemic-benchmark` FAIL, 0/5 casos, cobertura modal media 0.30. Los criterios permanecen sin cambios. Se asigna `qwen2.5:3b` a la siguiente ejecución.
 - Las fallas contractuales por caso se reportan sin salida bruta y no interrumpen los casos posteriores. La métrica de sobrepromoción cuenta sólo intentos de autoridad/promoción, no errores de identificador.
+
+- Benchmark real en Actions, run `36750502299`: `backend-live` PASS y benchmark FAIL, 1/5 con `qwen2.5:3b` (cobertura 0.80, abstención 0.60, sobrepromoción 0, diversidad 1.0, sin señales de alucinación/no anclaje). La rúbrica se mantiene; quedan brechas de modalidad anidada, alternativas y abstención por alcance.
+- Se amplía la guía general del adaptador para separar afirmaciones, preservar modalidad incrustada, mantener relatos incompatibles como alternativas y abstenerse ante relaciones no demostradas o texto ilegible; pruebas contractuales comprueban estas instrucciones.
+- Auditoría live de Paradigma, run `36751214487`: checkout de `prometeo-contexto` con el secreto existente PASS, lectura de Paradigma FAIL con HTTP 404. Repositorio, commit y mapa de destino fueron verificados independientemente; se requiere conceder a la credencial de sólo lectura acceso al repo privado Paradigma y actualizar el secreto existente.
