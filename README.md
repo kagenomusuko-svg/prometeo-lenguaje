@@ -23,7 +23,7 @@ Variables soportadas:
 - `PROMETEO_LANGUAGE_MODEL` — nombre de un modelo ya descargado localmente.
 - `OLLAMA_BASE_URL=http://127.0.0.1:11434` — sólo se aceptan direcciones loopback.
 
-El runner falla si Ollama no está disponible, registra un reporte sin incluir los textos del documento y guarda el resultado bajo `benchmark-results/` (ignorado por Git).
+El runner falla si Ollama no está disponible. Guarda métricas y muestras de propuestas producidas sobre el corpus sintético fijo bajo `benchmark-results/` (ignorado por Git); no procesa expedientes ni documentos del caso.
 
 ## Desarrollo y verificación
 
