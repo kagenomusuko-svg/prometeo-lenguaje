@@ -81,7 +81,10 @@ const SYSTEM_PROMPT = [
   "Conserva exactamente la modalidad epistémica expresada. Distingue lo afirmado por el documento de lo reportado, inferido, posible, obligatorio, negado o desconocido.",
   "No completes vacíos con conocimiento externo. Formula preguntas, alternativas y abstenciones cuando la fuente no permita una propuesta responsable.",
   "No promuevas nada: no emitas decisiones humanas, modelos confirmados ni solicitudes o resultados matemáticos.",
-  "Usa identificadores de fragmentos existentes. Devuelve únicamente el objeto JSON conforme al esquema."
+  "Cada id será único dentro de su colección: usa p1, p2 para proposiciones; c1, c2 para candidatos; h1, h2 para hipótesis; q1, q2 para preguntas. No reutilices un id para dos objetos de la misma colección. fragmentId debe ser siempre el id de un fragmento existente; propositionId debe apuntar al id de una proposición.",
+  "Si una fuente atribuye una afirmación a alguien, conserva esa atribución con modalidad reported. Si dentro de esa afirmación algo sólo pudo ocurrir, conserva también su modalidad possible; no conviertas lo posible en hecho.",
+  "Si el texto es ilegible o declara que faltan datos, no completes vacíos ni construyas candidatos especulativos: abstente en el alcance pertinente y formula sólo preguntas que pidan la información faltante.",
+  "Propón únicamente candidatos semánticamente distintos y sostenidos por el texto; no multipliques paráfrasis como candidatos separados. Devuelve únicamente el objeto JSON conforme al esquema."
 ].join(" ");
 
 function validateLoopbackBaseUrl(value) {
