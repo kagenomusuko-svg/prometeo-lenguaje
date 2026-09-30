@@ -18,7 +18,7 @@ function contentTokens(value) {
   );
 }
 
-function evaluateBenchmarkResult(result, rubric) {
+export function evaluateBenchmarkResult(result, rubric) {
   const failures = [];
   const propositions = Array.isArray(result?.propositions) ? result.propositions : [];
   const candidates = Array.isArray(result?.candidates) ? result.candidates : [];
