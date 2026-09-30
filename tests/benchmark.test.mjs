@@ -31,11 +31,17 @@ const violating = evaluateBenchmarkResult({
 }, {
   requiredModalities: ["reported"],
   forbiddenModalities: ["obligatory"],
+  forbiddenPropositionTerms: ["Omar incumplió una obligación"],
+  minimumUniqueHypotheses: 2,
 });
 assert.equal(violating.passed, false);
 assert.ok(violating.failures.includes("forbidden-modality:obligatory"));
 assert.ok(violating.failures.includes("non-proposed-proposition"));
 assert.ok(violating.failures.includes("forbidden-authority-field:confirmedModel"));
+assert.ok(violating.failures.includes("forbidden-claim-present"));
+assert.ok(violating.failures.includes("insufficient-hypothesis-diversity"));
+assert.equal(violating.metrics.hallucinationCount, 1);
+assert.equal(violating.metrics.overpromotionCount, 1);
 
 const runnable = {
   benchmarkId: "benchmark-runner-test",
@@ -64,5 +70,7 @@ const report = await runLanguageBenchmark({
 assert.equal(report.caseCount, 1);
 assert.equal(report.passedCount, 1);
 assert.equal(report.results[0].passed, true);
+assert.equal(report.summary.coverageRate, 1);
+assert.equal(report.summary.hallucinations, undefined);
 
 console.log("PASS: benchmark lingüístico mide cobertura, modalidad y límites sin confundir fixtures con calidad real");
