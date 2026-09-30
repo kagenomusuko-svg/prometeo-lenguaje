@@ -23,7 +23,7 @@ La suite cubre contratos, modalidad, propuestas, contexto, alternativas, el adap
 4. Descarga el modelo, si hace falta: `ollama pull qwen2.5:7b`.
 5. Ejecuta `npm run benchmark:local`.
 
-La ejecución usa el modelo local real y falla si no puede contactar Ollama; no cambia a un mock. El JSON de métricas se guarda en `benchmark-results/`, una carpeta ignorada por Git. El reporte incluye cobertura de modalidades, claims requeridos/prohibidos, conteo de alucinaciones señaladas por rúbrica, promoción indebida, abstención y diversidad de hipótesis. La coincidencia textual de claims es una señal determinista y no sustituye la revisión semántica del resultado del modelo.
+La ejecución usa el modelo local real y falla si no puede contactar Ollama; no cambia a un mock. El JSON de métricas y muestras de propuestas sobre los fixtures sintéticos se guarda en `benchmark-results/`, una carpeta ignorada por Git. El runner no recibe documentos del caso. El reporte incluye cobertura de modalidades, claims requeridos/prohibidos, conteo de alucinaciones señaladas por rúbrica, promoción indebida, abstención y diversidad de hipótesis. La coincidencia textual de claims es una señal determinista y no sustituye la revisión semántica del resultado del modelo.
 
 Variables de entorno:
 - `PROMETEO_LANGUAGE_BACKEND=ollama`
