@@ -1,0 +1,33 @@
+name: Audit existing context token access to Paradigma
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-read-only-access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PROMETEO_PARADIGMA_READ_TOKEN: ${{ secrets.PROMETEO_CONTEXT_TOKEN }}
+      PARADIGMA_SOURCE_COMMIT: e7c7b06eebd56e412a8b27f3c58747af2d1e531c
+      PARADIGMA_QUERY: método Prometeo
+    steps:
+      - name: Checkout lenguaje
+        uses: actions/checkout@v4
+      - name: Checkout contexto at verified commit
+        uses: actions/checkout@v4
+        with:
+          repository: kagenomusuko-svg/prometeo-contexto
+          ref: 8dc3eaf58dd15c916177cab95a3a34c7d2f87150
+          token: ${{ secrets.PROMETEO_CONTEXT_TOKEN }}
+          path: prometeocontexto
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read pinned Paradigma sources (GET only)
+        working-directory: prometeocontexto
+        run: node scripts/verify-paradigma-live.mjs
