@@ -6,27 +6,25 @@ Isla lingüística de Prometeo. Consume un backend mediante la interfaz `Languag
 
 El modelo sólo propone. No puede producir decisiones humanas, `ConfirmedModel`, `MotorRequest`, `MotorResult` ni trazas de cálculo. La salida debe superar la validación contractual antes de exponerse como `LanguageProposal`. Contexto de Paradigma se conserva separado de la evidencia del caso.
 
-No se requiere API key de proveedor lingüístico. El benchmark real corre contra el modelo local configurado; las pruebas deterministas con backend de prueba sólo cubren contratos y el evaluador.
+No se requiere API key de proveedor lingüístico. El propietario puede administrar y validar Prometeo desde GitHub en un iPad: no necesita instalar Node, Ollama, Git ni una terminal local.
 
-## Configuración local
+## Benchmark real en GitHub Actions
 
-Copia `.env.example` a `.env.local`, selecciona un modelo instalado en Ollama y ajusta los valores sólo en ese archivo ignorado por Git:
+En **Actions → Prometeo local model benchmark → Run workflow**, el runner efímero instala Ollama, descarga `qwen2.5:1.5b` y ejecuta dos jobs separados:
 
-```sh
-cp .env.example .env.local
-ollama pull qwen2.5:7b
-npm run benchmark:local
-```
+- `backend-live`: invoca el adaptador real, valida el resultado mediante `analyzeDocument` y comprueba invariantes de propuesta y confirmación humana.
+- `epistemic-benchmark`: evalúa los cinco casos sintéticos con el modelo real. Mide cobertura, modalidad, discriminación, claims de alucinación, promoción indebida, abstención y diversidad de hipótesis. No reduce las rúbricas; un resultado insuficiente deja este job en fallo aunque `backend-live` pase.
 
-Variables soportadas:
-- `PROMETEO_LANGUAGE_BACKEND=ollama`
-- `PROMETEO_LANGUAGE_MODEL` — nombre de un modelo ya descargado localmente.
-- `OLLAMA_BASE_URL=http://127.0.0.1:11434` — sólo se aceptan direcciones loopback.
+Ambos reportes se guardan como artefactos de Actions durante 90 días. Cada reporte identifica el modelo. No se usan mocks ni credenciales comerciales en estos jobs. La suite determinista sigue disponible como CI normal para probar contratos.
 
-El runner falla si Ollama no está disponible. Guarda métricas y muestras de propuestas producidas sobre el corpus sintético fijo bajo `benchmark-results/` (ignorado por Git); no procesa expedientes ni documentos del caso.
+El modelo inicial de CI es `qwen2.5:1.5b` para limitar descarga y memoria del runner; no se interpreta su ejecución como evidencia de calidad suficiente. La configuración Ollama local de `.env.example` es opcional para desarrolladores con una estación local y no es un requisito de validación o cierre.
+
+## Contexto privado Paradigma
+
+La prueba de lectura real es independiente del benchmark lingüístico. El workflow manual **Audit existing context token access to Paradigma** se ejecuta en este repositorio y comprueba si el secreto existente `PROMETEO_CONTEXT_TOKEN` puede leer el contenido fijado de Paradigma. La petición queda confinada por el adaptador a HTTPS GET sobre el repositorio privado y el SHA configurado. El valor del secreto no se imprime ni se incorpora al informe. Sólo se solicitará otro token si esta prueba demuestra que la credencial no tiene acceso.
 
 ## Desarrollo y verificación
 
-Requiere Node.js 22 o superior. Ejecuta `npm test` para las pruebas deterministas/contractuales. Las pruebas de integración interrepositorio pueden requerir `PROMETEO_CONTEXTO_PATH` apuntando a `prometeo-contexto/src/query.mjs`. El benchmark de modelo real se ejecuta por separado con `npm run benchmark:local` y no sustituye la suite contractual.
+La suite contractual determinista se ejecuta con `npm test` en GitHub Actions. `npm run benchmark:backend-live` y `npm run benchmark:local` son herramientas opcionales para desarrolladores que sí dispongan de entorno local; no se requieren del propietario para administrar ni validar el proyecto.
 
-Consulta `INSTRUCCIONES.md` para los pasos completos y `CHANGELOG.md` para cambios por versión.
+Consulta `INSTRUCCIONES.md` para detalles y `CHANGELOG.md` para cambios por versión.
