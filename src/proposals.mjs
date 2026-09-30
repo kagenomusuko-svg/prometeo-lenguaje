@@ -241,18 +241,73 @@ function validateGeneratedSet(generated) {
   if (generated.propositions.length === 0 && generated.abstentions.length === 0) {
     throw new LanguageError("EMPTY_ANALYSIS", "empty proposals require an explicit abstention");
   }
+
+  const authorityKeys = new Set([
+    "evidence", "analystdecision", "confirmedmodel", "motorrequest", "motorresult", "calculationtrace"
+  ]);
+  function rejectAuthorityFields(value, path = "generated") {
+    if (!value || typeof value !== "object") return;
+    for (const [key, nested] of Object.entries(value)) {
+      const normalizedKey = key.toLocaleLowerCase().replace(/[_-]/gu, "");
+      if (authorityKeys.has(normalizedKey)) {
+        throw new LanguageError("UNAUTHORIZED_OUTPUT_FIELD", path + "." + key);
+      }
+      rejectAuthorityFields(nested, path + "." + key);
+    }
+  }
+  rejectAuthorityFields(generated);
+
+  function exactShape(value, field, required, optional = []) {
+    object(value, field);
+    const allowedKeys = new Set([...required, ...optional]);
+    for (const key of required) {
+      if (!Object.hasOwn(value, key)) throw new LanguageError("MISSING_FIELD", field + "." + key + " is required");
+    }
+    for (const key of Object.keys(value)) {
+      if (!allowedKeys.has(key)) throw new LanguageError("UNAUTHORIZED_OUTPUT_FIELD", field + "." + key);
+    }
+  }
+
+  const propositionIds = new Set();
+  generated.propositions.forEach((item, index) => {
+    const field = "propositions[" + index + "]";
+    exactShape(item, field, ["id", "fragmentId", "text", "modality"], ["state"]);
+    requiredString(item.id, field + ".id");
+    if (propositionIds.has(item.id)) throw new LanguageError("DUPLICATE_ID", item.id);
+    propositionIds.add(item.id);
+  });
+
+  const candidateIds = new Set();
+  generated.candidates.forEach((item, index) => {
+    const field = "candidates[" + index + "]";
+    exactShape(item, field, ["id", "propositionId", "category", "label"], ["attributes", "confidence", "ambiguity", "state"]);
+    requiredString(item.id, field + ".id");
+    if (candidateIds.has(item.id)) throw new LanguageError("DUPLICATE_ID", item.id);
+    candidateIds.add(item.id);
+  });
+
+  generated.hypotheses.forEach((item, index) => {
+    const field = "hypotheses[" + index + "]";
+    exactShape(item, field, ["id", "caseId", "label"], ["candidateIds", "relationIds", "status"]);
+  });
+
+  const questionIds = new Set();
   generated.questions.forEach((question, index) => {
-    object(question, "questions[" + index + "]");
-    requiredString(question.id, "questions[" + index + "].id");
-    requiredString(question.text, "questions[" + index + "].text");
-    requiredString(question.reason, "questions[" + index + "].reason");
+    const field = "questions[" + index + "]";
+    exactShape(question, field, ["id", "text", "reason"]);
+    requiredString(question.id, field + ".id");
+    requiredString(question.text, field + ".text");
+    requiredString(question.reason, field + ".reason");
+    if (questionIds.has(question.id)) throw new LanguageError("DUPLICATE_ID", question.id);
+    questionIds.add(question.id);
   });
   generated.abstentions.forEach((abstention, index) => {
-    object(abstention, "abstentions[" + index + "]");
+    const field = "abstentions[" + index + "]";
+    exactShape(abstention, field, ["scope", "reason"]);
     if (!["document", "proposition", "candidate", "hypothesis", "relation"].includes(abstention.scope)) {
-      throw new LanguageError("INVALID_ABSTENTION", "abstentions[" + index + "].scope is invalid");
+      throw new LanguageError("INVALID_ABSTENTION", field + ".scope is invalid");
     }
-    requiredString(abstention.reason, "abstentions[" + index + "].reason");
+    requiredString(abstention.reason, field + ".reason");
   });
 }
 
