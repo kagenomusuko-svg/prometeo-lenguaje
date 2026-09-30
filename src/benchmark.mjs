@@ -135,6 +135,13 @@ export async function runLanguageBenchmark({ analyze, backend, benchmark, record
     results.push({
       caseId: testCase.id,
       ...evaluateBenchmarkResult({ ...output, sourceFragments: testCase.document.fragments }, testCase.rubric),
+      sample: {
+        propositions: (output.propositions ?? []).map(({ id, fragmentId, text, modality, state }) => ({ id, fragmentId, text, modality, state })),
+        candidates: (output.candidates ?? []).map(({ id, propositionId, category, label, confidence, ambiguity, state }) => ({ id, propositionId, category, label, confidence, ambiguity, state })),
+        hypotheses: (output.hypotheses ?? []).map(({ id, caseId, label, candidateIds, relationIds, status }) => ({ id, caseId, label, candidateIds, relationIds, status })),
+        questions: (output.questions ?? []).map(({ id, text, reason }) => ({ id, text, reason })),
+        abstentions: (output.abstentions ?? []).map(({ scope, reason }) => ({ scope, reason })),
+      },
     });
   }
   return {
