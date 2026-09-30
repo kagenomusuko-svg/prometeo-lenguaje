@@ -127,11 +127,40 @@ export async function runLanguageBenchmark({ analyze, backend, benchmark, record
 
   const results = [];
   for (const testCase of benchmark.cases) {
-    const output = await analyze({
-      backend,
-      document: testCase.document,
-      recordedAt,
-    });
+    let output;
+    try {
+      output = await analyze({
+        backend,
+        document: testCase.document,
+        recordedAt,
+      });
+    } catch (error) {
+      results.push({
+        caseId: testCase.id,
+        passed: false,
+        failures: ["backend-fail-closed"],
+        errorCode: error.code || "LANGUAGE_VALIDATION_FAILED",
+        metrics: {
+          propositionCount: 0,
+          candidateCount: 0,
+          hypothesisCount: 0,
+          questionCount: 0,
+          abstentionCount: 0,
+          modalities: [],
+          abstentionScopes: [],
+          requiredModalityCoverage: 0,
+          modalityDiscriminationCount: 0,
+          requiredClaimsCovered: 0,
+          hallucinationCount: 0,
+          hypothesisDiversity: 0,
+          unanchoredPropositionCount: 0,
+          abstentionScopeRecall: 0,
+          overpromotionCount: 1,
+        },
+        sample: null,
+      });
+      continue;
+    }
     results.push({
       caseId: testCase.id,
       ...evaluateBenchmarkResult({ ...output, sourceFragments: testCase.document.fragments }, testCase.rubric),
