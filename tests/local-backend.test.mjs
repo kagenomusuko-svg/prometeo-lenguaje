@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { analyzeDocument, LanguageError } from "../src/proposals.mjs";
-import { createLanguageBackend, LanguageBackendError } from "../src/backends/ollama.mjs";
+import { createLanguageBackend } from "../src/backends/ollama.mjs";
+import { LanguageBackendError } from "../src/backend.mjs";
 
 const document = {
   id: "ollama-contract-1",
