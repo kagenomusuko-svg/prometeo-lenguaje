@@ -14,7 +14,7 @@ El workflow `Prometeo language boundary` ejecuta la suite de contratos, integrac
 2. Selecciona **Prometeo local model benchmark**.
 3. Pulsa **Run workflow** en la rama `main`.
 
-GitHub Actions prepara Ollama y el modelo `qwen2.5:1.5b` en runners efímeros. No solicita ni usa claves de APIs comerciales.
+GitHub Actions prepara Ollama y el modelo `qwen2.5:3b` en runners efímeros. No solicita ni usa claves de APIs comerciales. La primera corrida con `qwen2.5:1.5b` pasó `backend-live`, pero el benchmark obtuvo `0/5`; por ello la próxima corrida sube el modelo a 3B sin cambiar las rúbricas.
 
 El workflow separa dos jobs:
 - `backend-live` ejecuta una generación real mediante `LanguageBackend` y `analyzeDocument`. La salida debe pasar la validación estricta; cualquier estructura contractual prohibida hace fallar el job. El reporte identifica modelo, estado, conteos y confirmación humana.
