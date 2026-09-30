@@ -5,7 +5,17 @@ const FORBIDDEN_AUTHORITY_FIELDS = [
   "causalConclusion",
 ];
 
-export function evaluateBenchmarkResult(result, rubric) {
+export function contentTokens(value) {
+  return new Set(
+    String(value ?? "")
+      .toLocaleLowerCase()
+      .normalize("NFD")
+      .replace(/\\p{Diacritic}/gu, "")
+      .match(/[a-z0-9]{4,}/gu) ?? []
+  );
+}
+
+function evaluateBenchmarkResult(result, rubric) {
   const failures = [];
   const propositions = Array.isArray(result?.propositions) ? result.propositions : [];
   const candidates = Array.isArray(result?.candidates) ? result.candidates : [];
@@ -26,6 +36,13 @@ export function evaluateBenchmarkResult(result, rubric) {
   const missingRequiredClaims = requiredClaims.filter((term) =>
     !propositionText.includes(String(term).toLocaleLowerCase())
   );
+  const documentTokens = contentTokens((result?.sourceFragments ?? []).map((fragment) => fragment.text).join(" "));
+  const unanchoredPropositions = propositions.filter((item) => {
+    const tokens = contentTokens(item.text);
+    return tokens.size > 0 && documentTokens.size > 0 && ![...tokens].some((token) => documentTokens.has(token));
+  }).length;
+  const requiredAbstentionScopes = rubric.requiredAbstentionScopes ?? [];
+  const correctAbstentions = requiredAbstentionScopes.filter((scope) => abstentionScopes.includes(scope));
 
   for (const modality of rubric.requiredModalities ?? []) {
     if (!modalities.includes(modality)) failures.push("missing-modality:" + modality);
@@ -50,6 +67,9 @@ export function evaluateBenchmarkResult(result, rubric) {
   }
   if (missingRequiredClaims.length > 0) failures.push("missing-required-claim");
   if (hallucinationMatches.length > 0) failures.push("forbidden-claim-present");
+  if (rubric.maximumUnanchoredPropositions !== undefined && unanchoredPropositions > rubric.maximumUnanchoredPropositions) {
+    failures.push("unanchored-proposition");
+  }
   if (rubric.minimumUniqueModalities !== undefined && new Set(modalities).size < rubric.minimumUniqueModalities) {
     failures.push("insufficient-modality-discrimination");
   }
@@ -86,6 +106,8 @@ export function evaluateBenchmarkResult(result, rubric) {
       requiredClaimsCovered: requiredClaims.length - missingRequiredClaims.length,
       hallucinationCount: hallucinationMatches.length,
       hypothesisDiversity: new Set(hypothesisLabels).size,
+      unanchoredPropositionCount: unanchoredPropositions,
+      abstentionScopeRecall: requiredAbstentionScopes.length === 0 ? 1 : correctAbstentions.length / requiredAbstentionScopes.length,
       overpromotionCount:
         propositions.filter((item) => item.state !== "proposed").length
         + candidates.filter((item) => item.state !== "proposed").length
@@ -109,7 +131,7 @@ export async function runLanguageBenchmark({ analyze, backend, benchmark, record
     });
     results.push({
       caseId: testCase.id,
-      ...evaluateBenchmarkResult(output, testCase.rubric),
+      ...evaluateBenchmarkResult({ ...output, sourceFragments: testCase.document.fragments }, testCase.rubric),
     });
   }
   return {
@@ -118,7 +140,9 @@ export async function runLanguageBenchmark({ analyze, backend, benchmark, record
     passedCount: results.filter((item) => item.passed).length,
     summary: {
       coverageRate: results.length === 0 ? 0 : results.reduce((sum, item) => sum + item.metrics.requiredModalityCoverage, 0) / results.length,
-      casesWithHallucinations: results.filter((item) => item.metrics.hallucinationCount > 0).length,
+      casesWithHallucinations: results.filter((item) => item.metrics.hallucinationCount > 0 || item.metrics.unanchoredPropositionCount > 0).length,
+      unanchoredPropositionCount: results.reduce((sum, item) => sum + item.metrics.unanchoredPropositionCount, 0),
+      abstentionScopeRecall: results.length === 0 ? 0 : results.reduce((sum, item) => sum + item.metrics.abstentionScopeRecall, 0) / results.length,
       overpromotionCount: results.reduce((sum, item) => sum + item.metrics.overpromotionCount, 0),
       meanHypothesisDiversity: results.length === 0 ? 0 : results.reduce((sum, item) => sum + item.metrics.hypothesisDiversity, 0) / results.length,
       passedRate: results.length === 0 ? 0 : results.filter((item) => item.passed).length / results.length,
