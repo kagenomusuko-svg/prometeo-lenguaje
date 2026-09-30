@@ -10,14 +10,14 @@ No se requiere API key de proveedor lingüístico. El propietario puede administ
 
 ## Benchmark real en GitHub Actions
 
-En **Actions → Prometeo local model benchmark → Run workflow**, el runner efímero instala Ollama, descarga `qwen2.5:3b` y ejecuta dos jobs separados:
+En **Actions → Prometeo local model benchmark → Run workflow**, el runner efímero instala Ollama, descarga `qwen2.5:7b` y ejecuta dos jobs separados:
 
 - `backend-live`: invoca el adaptador real, valida el resultado mediante `analyzeDocument` y comprueba invariantes de propuesta y confirmación humana.
 - `epistemic-benchmark`: evalúa los cinco casos sintéticos con el modelo real. Mide cobertura, modalidad, discriminación, claims de alucinación, promoción indebida, abstención y diversidad de hipótesis. No reduce las rúbricas; un resultado insuficiente deja este job en fallo aunque `backend-live` pase.
 
 Ambos reportes se guardan como artefactos de Actions durante 90 días. Cada reporte identifica el modelo. No se usan mocks ni credenciales comerciales en estos jobs. La suite determinista sigue disponible como CI normal para probar contratos.
 
-La primera ejecución real con `qwen2.5:1.5b` pasó `backend-live` pero obtuvo `0/5` casos en `epistemic-benchmark` (cobertura modal media `0.30`). El modelo evidenció pérdida de modalidad, IDs duplicados y exceso de candidatos con texto insuficiente. Se cambió la próxima ejecución a `qwen2.5:3b`; el cambio busca evaluar una capacidad mayor, pero no altera ninguna rúbrica. Sólo los artefactos de cada run acreditan el modelo usado. La configuración Ollama local de `.env.example` es opcional y no es requisito de validación o cierre.
+La ejecución con `qwen2.5:1.5b` pasó `backend-live` y obtuvo `0/5`. La evaluación real posterior con `qwen2.5:3b` pasó `1/5` antes y después de la mejora del prompt (runs `36750502299` y `36755094737`); en la última obtuvo cobertura `0.70`, abstención de alcance `1.0`, diversidad léxica `0.20`, y cero señales detectadas de alucinación o proposiciones sin anclaje. Persistieron pérdidas de modalidad, relatos incompatibles no separados y una proposición ante texto ilegible. Se fija `qwen2.5:7b` para la siguiente evaluación, modelo de `4.7 GB` que cabe en el runner estándar de `16 GB`; las rúbricas permanecen intactas. El artefacto `11116402785` identifica el último run y el modelo. La configuración Ollama local de `.env.example` es opcional y no es requisito de validación o cierre.
 
 ## Contexto privado Paradigma
 
