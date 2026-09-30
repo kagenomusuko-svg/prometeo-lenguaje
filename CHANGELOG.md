@@ -15,4 +15,5 @@
 - La validación fail-closed rechaza campos adicionales, decisiones y contratos de autoridad en la salida del modelo.
 - Se añade configuración segura en `.env.example` y se ignoran `.env`, `.env.local` y reportes locales.
 - El benchmark ampliado se ejecuta con `npm run benchmark:local` contra el modelo Ollama configurado y mide cobertura/modalidad, claims de alucinación, sobrepromoción, abstención y diversidad.
+- El reporte local conserva muestras normalizadas de las propuestas para revisión humana, sólo sobre el dataset sintético fijo.
 - `npm test` conserva pruebas deterministas; el CI no requiere servicios externos ni claves de proveedor lingüístico.
