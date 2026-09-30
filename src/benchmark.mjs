@@ -13,7 +13,7 @@ function contentTokens(value) {
     String(value ?? "")
       .toLocaleLowerCase()
       .normalize("NFD")
-      .replace(/\\p{Diacritic}/gu, "")
+      .replace(/\p{Diacritic}/gu, "")
       .match(/[a-z0-9]{4,}/gu) ?? []
   );
 }
