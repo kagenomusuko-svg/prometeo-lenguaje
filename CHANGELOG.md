@@ -20,3 +20,6 @@
 
 - Se añade workflow manual de Actions con Ollama efímero y `qwen2.5:1.5b`, separado en `backend-live` y `epistemic-benchmark`; conserva reportes descargables sin pedir ejecución local al propietario.
 - Se añade auditoría manual GET-only que prueba el secreto ya configurado `PROMETEO_CONTEXT_TOKEN` para lectura del Paradigma fijado, sin revelar su valor ni duplicarlo.
+
+- Benchmark real en Actions, run `36745569690`: `backend-live` PASS con `qwen2.5:1.5b`; `epistemic-benchmark` FAIL, 0/5 casos, cobertura modal media 0.30. Los criterios permanecen sin cambios. Se asigna `qwen2.5:3b` a la siguiente ejecución.
+- Las fallas contractuales por caso se reportan sin salida bruta y no interrumpen los casos posteriores. La métrica de sobrepromoción cuenta sólo intentos de autoridad/promoción, no errores de identificador.
